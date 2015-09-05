@@ -22,7 +22,11 @@ pod "CoreDataManager"
 
 ## Author
 
-Taavi Teska, taaviteska@gmail.com
+Taavi Teska (Thorgate)
+
+## Credits
+
+CoreDataManager is using CoreDataSimpleDemo example for managed object contexts - https://github.com/iascchen/SwiftCoreDataSimpleDemo
 
 ## License
 
