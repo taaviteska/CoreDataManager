@@ -9,22 +9,21 @@
 Pod::Spec.new do |s|
   s.name             = "CoreDataManager"
   s.version          = "0.1.0"
-  s.summary          = "A short description of CoreDataManager."
+  s.summary          = "Helper for Core Data management and syncing data from an JSON API"
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
 #   * Try to keep it short, snappy and to the point.
 #   * Write the description between the DESC delimiters below.
 #   * Finally, don't worry about the indent, CocoaPods strips it!  
-  s.description      = <<-DESC
-                       DESC
+  s.description      = "CoreDataManager makes it easy to operate with managed objects and map them with the objects fetched from any JSON API endpoint."
 
-  s.homepage         = "https://github.com/<GITHUB_USERNAME>/CoreDataManager"
+  s.homepage         = "https://github.com/taaviteska/CoreDataManager"
   # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
   s.license          = 'MIT'
-  s.author           = { "Taavi Teska" => "taavi@thorgate.eu" }
-  s.source           = { :git => "https://github.com/<GITHUB_USERNAME>/CoreDataManager.git", :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.author           = { "Taavi Teska" => "taaviteska@gmail.com" }
+  s.source           = { :git => "https://github.com/taaviteska/CoreDataManager.git", :tag => s.version.to_s }
+  s.social_media_url = 'https://twitter.com/taaviteska'
 
   s.platform     = :ios, '8.0'
   s.requires_arc = true

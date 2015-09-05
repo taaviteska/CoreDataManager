@@ -1,0 +1,14 @@
+PODS:
+  - CoreDataManager (0.1.0)
+
+DEPENDENCIES:
+  - CoreDataManager (from `../`)
+
+EXTERNAL SOURCES:
+  CoreDataManager:
+    :path: ../
+
+SPEC CHECKSUMS:
+  CoreDataManager: 10208299853386766db8f91d7a590ac9abfc0b4e
+
+COCOAPODS: 0.38.2

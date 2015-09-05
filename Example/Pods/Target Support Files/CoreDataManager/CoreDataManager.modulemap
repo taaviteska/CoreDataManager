@@ -1,0 +1,6 @@
+framework module CoreDataManager {
+  umbrella header "CoreDataManager-umbrella.h"
+
+  export *
+  module * { export * }
+}

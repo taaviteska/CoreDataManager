@@ -22,7 +22,7 @@ pod "CoreDataManager"
 
 ## Author
 
-Taavi Teska, taavi@thorgate.eu
+Taavi Teska, taaviteska@gmail.com
 
 ## License
 
