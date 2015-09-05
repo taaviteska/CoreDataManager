@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "CoreDataManager"
-  s.version          = "0.1.0"
+  s.version          = "0.1.1"
   s.summary          = "Helper for Core Data management and syncing data from an JSON API"
 
 # This description is used to generate tags and improve search results.
