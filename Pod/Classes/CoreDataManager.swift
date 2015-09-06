@@ -14,7 +14,7 @@ public class CoreDataManager:NSObject {
     public static let sharedInstance = CoreDataManager()
     
     var modelName: String?
-    var databaseName: String?
+    var databaseURL: NSURL?
     
     private let store = CoreDataStore()
     
@@ -32,15 +32,17 @@ public class CoreDataManager:NSObject {
     // MARK: - Setup
     
     public static func setupWithModel(model: String) {
-        self.sharedInstance.modelName = model
-        self.sharedInstance.databaseName = model.stringByAppendingString(".sqlite")
-        
-        self.sharedInstance.store.setupPersistentStoreCoordinator()
+        self.setupWithModel(model, andFileName: model.stringByAppendingString(".sqlite"))
     }
     
-    public static func setupWithModel(model: String, andDatabase database: String) {
+    public static func setupWithModel(model: String, andFileName fileName: String) {
+        let url = self.sharedInstance.applicationDocumentsDirectory.URLByAppendingPathComponent(fileName)
+        self.setupWithModel(model, andFileURL: url)
+    }
+    
+    public static func setupWithModel(model: String, andFileURL url: NSURL) {
         self.sharedInstance.modelName = model
-        self.sharedInstance.databaseName = database
+        self.sharedInstance.databaseURL = url
         
         self.sharedInstance.store.setupPersistentStoreCoordinator()
     }
@@ -99,4 +101,12 @@ public class CoreDataManager:NSObject {
             }
         }
     }
+    
+    
+    //MARK: - Other
+    
+    lazy var applicationDocumentsDirectory: NSURL = {
+        let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
+        return urls[urls.count-1] as! NSURL
+        }()
 }

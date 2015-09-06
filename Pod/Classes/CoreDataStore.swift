@@ -12,12 +12,6 @@ class CoreDataStore: NSObject {
     
     var storeCoordinator: NSPersistentStoreCoordinator?
     
-    lazy var applicationDocumentsDirectory: NSURL = {
-        // The directory the application uses to store the Core Data store file. This code uses a directory named "me.iascchen.MyTTT" in the application's documents Application Support directory.
-        let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-        return urls[urls.count-1] as! NSURL
-        }()
-    
     lazy var managedObjectModel: NSManagedObjectModel = {
         // The managed object model for the application. This property is not optional. It is a fatal error for the application not to be able to find and load its model.
         if let modelName = CoreDataManager.sharedInstance.modelName {
@@ -42,20 +36,18 @@ class CoreDataStore: NSObject {
         }
         
         var coordinator: NSPersistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
-        if let databaseName = CoreDataManager.sharedInstance.databaseName {
-            let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent(databaseName)
+        if let databaseURL = CoreDataManager.sharedInstance.databaseURL {
             var error: NSError? = nil
             
-            if coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil, error: &error) != nil {
-                self.storeCoordinator = coordinator
-                
-                return
+            if coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: databaseURL, options: nil, error: &error) == nil {
+                fatalError("There was an error adding persistent SQLite store on url \(databaseURL)")
             }
             
-            fatalError("There was an error adding persistent SQLite store on url \(url)")
+            self.storeCoordinator = coordinator
+        } else {
+            fatalError("CoreDataManager not set up. Use CoreDataManager.setupWithModel()")
         }
         
-        fatalError("CoreDataManager not set up. Use CoreDataManager.setupWithModel()")
     }
     
     func setupInMemoryStoreCoordinator() {
