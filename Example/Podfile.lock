@@ -1,5 +1,5 @@
 PODS:
-  - CoreDataManager (0.1.2)
+  - CoreDataManager (0.2.0)
 
 DEPENDENCIES:
   - CoreDataManager (from `../`)
@@ -9,6 +9,6 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  CoreDataManager: 2d1d1d2257550bbfe28696b330b28f116e24c2f4
+  CoreDataManager: 8e84046b9bfdbb2249bc5e6e843afc341dfb40d8
 
 COCOAPODS: 0.38.2
