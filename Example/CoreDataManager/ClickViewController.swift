@@ -14,30 +14,41 @@ import CoreDataManager
 class ClickViewController: UITableViewController, NSFetchedResultsControllerDelegate {
     
     private let cdm = CoreDataManager.sharedInstance
+    private var thisBatchID: Int!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         // Do any additional setup after loading the view, typically from a nib.
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
         
         let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewClick:")
         self.navigationItem.rightBarButtonItem = addButton
+        
+        let lastBatchID = (self.cdm.mainContext.managerFor(Batch).max("id") as? Int) ?? 0
+        self.thisBatchID = lastBatchID + 1
     }
     
     func insertNewClick(sender: AnyObject) {
-        let fetchRequest = NSFetchRequest(entityName: "Click")
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "clickID", ascending: false)]
-        fetchRequest.fetchLimit = 1
-        var error:NSError?
-        let clicks = self.fetchedResultsController.managedObjectContext.executeFetchRequest(fetchRequest, error: &error) as! [NSManagedObject]
-        
-        let lastClickID = (clicks.first?.valueForKey("clickID") as? Int) ?? 0
         
         let context = self.cdm.backgroundContext
         context.performBlock {
-            let newClick = NSEntityDescription.insertNewObjectForEntityForName("Click", inManagedObjectContext: context) as! NSManagedObject
-            newClick.setValue(NSDate(), forKey: "timeStamp")
-            newClick.setValue(lastClickID + 1, forKey: "clickID")
+            let clickManager = context.managerFor(Click)
+            let lastClickID = (clickManager.max("clickID") as? Int) ?? 0
+            
+            let newClick = NSEntityDescription.insertNewObjectForEntityForName("Click", inManagedObjectContext: context) as! Click
+            newClick.timeStamp = NSDate()
+            newClick.clickID = lastClickID + 1
+            
+            if let batch = context.managerFor(Batch).filter(format: "id = %d", self.thisBatchID).first {
+                newClick.batch = batch
+            } else {
+                let newBatch = NSEntityDescription.insertNewObjectForEntityForName("Batch", inManagedObjectContext: context) as! Batch
+                
+                newBatch.id = self.thisBatchID
+                newBatch.name = "Batch \(self.thisBatchID)"
+                newClick.batch = newBatch
+            }
             context.save()
         }
     }
@@ -53,6 +64,12 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return self.fetchedResultsController.sections?.count ?? 0
+    }
+    
+    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        let firstClick = self.fetchedResultsController.objectAtIndexPath(NSIndexPath(forRow: 0, inSection: section)) as! Click
+        
+        return firstClick.batch.name
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -105,7 +122,7 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
         
         fetchRequest.sortDescriptors = [sortDescriptor]
         
-        let aFetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.cdm.mainContext, sectionNameKeyPath: nil, cacheName: nil)
+        let aFetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.cdm.mainContext, sectionNameKeyPath: "batch.name", cacheName: nil)
         aFetchedResultsController.delegate = self
         _fetchedResultsController = aFetchedResultsController
         

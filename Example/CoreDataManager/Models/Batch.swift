@@ -1,5 +1,5 @@
 //
-//  Click.swift
+//  Batch.swift
 //  CoreDataManager
 //
 //  Created by Taavi Teska on 06/09/15.
@@ -9,11 +9,10 @@
 import Foundation
 import CoreData
 
-class Click: NSManagedObject {
+class Batch: NSManagedObject {
 
-    @NSManaged var clickID: NSNumber
-    @NSManaged var timeStamp: NSDate
-    
-    @NSManaged var batch: Batch
+    @NSManaged var name: String
+    @NSManaged var id: NSNumber
+    @NSManaged var clicks: NSSet
 
 }

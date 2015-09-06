@@ -93,11 +93,56 @@ extension ManagedObjectManager {
     
     public var count: Int {
         get {
-            let fetchRequest = self.fetchRequestWithPredicate(self.managerPredicate, andSortDescriptors: self.managerSortDescriptors, withFetchLimit: self.managerFetchLimit)
+            let fetchRequest = self.fetchRequest()
             
             var error: NSError?
             return self.context.countForFetchRequest(fetchRequest, error: &error)
         }
+    }
+    
+    public func min(keyPath: String) -> AnyObject? {
+        return self.aggregate("min", forKeyPath: keyPath)
+    }
+    
+    public func max(keyPath: String) -> AnyObject? {
+        return self.aggregate("max", forKeyPath: keyPath)
+    }
+    
+    public func sum(keyPath: String) -> AnyObject? {
+        return self.aggregate("sum", forKeyPath: keyPath)
+    }
+    
+    public func aggregate(functionName: String, forKeyPath keyPath: String) -> AnyObject? {
+        let expression = NSExpression(forFunction: functionName.stringByAppendingString(":"), arguments: [NSExpression(forKeyPath: keyPath)])
+        
+        let expressionName = functionName + keyPath
+        let expressionDescription = NSExpressionDescription()
+        expressionDescription.name = functionName
+        expressionDescription.expression = expression
+        
+        var entityDescription = NSEntityDescription.entityForName(self.entityName(), inManagedObjectContext: self.context)!
+        var keyPathArray = keyPath.componentsSeparatedByString(".")
+        let lastKey = keyPathArray.removeLast()
+        
+        for key in keyPathArray {
+            let relationshipDesc = entityDescription.propertiesByName[key] as! NSRelationshipDescription
+            entityDescription = relationshipDesc.destinationEntity!
+        }
+        let entityAttributeDesc = entityDescription.attributesByName[lastKey] as! NSAttributeDescription
+        expressionDescription.expressionResultType = entityAttributeDesc.attributeType
+        
+        let fetchRequest = self.fetchRequest()
+        fetchRequest.resultType = NSFetchRequestResultType.DictionaryResultType
+        fetchRequest.propertiesToFetch = [expressionDescription]
+        
+        var error: NSError?
+        let results = self.context.executeFetchRequest(fetchRequest, error: &error)!
+        
+        if results.count > 0 {
+            return results[0].valueForKey(functionName)
+        }
+        
+        return nil
     }
     
 }
@@ -151,10 +196,26 @@ extension ManagedObjectManager {
 
 extension ManagedObjectManager {
     
+    // MARK: Entity
+    
+    private func entityName() -> String {
+        
+        return NSStringFromClass(T).componentsSeparatedByString(".").last!
+        
+    }
+    
+    
+    // MARK: Fetch requests
+    
+    private func fetchRequest() -> NSFetchRequest {
+        
+        return self.fetchRequestWithPredicate(self.managerPredicate, andSortDescriptors: self.managerSortDescriptors, withFetchLimit: self.managerFetchLimit)
+        
+    }
+    
     private func fetchRequestWithPredicate(predicate: NSPredicate?, andSortDescriptors sortDescriptors: [NSSortDescriptor], withFetchLimit limit: Int?) -> NSFetchRequest {
         
-        let entityName = NSStringFromClass(T).componentsSeparatedByString(".").last!
-        let fetchRequest = NSFetchRequest(entityName: entityName)
+        let fetchRequest = NSFetchRequest(entityName: self.entityName())
         
         fetchRequest.predicate = predicate
         fetchRequest.sortDescriptors = sortDescriptors
@@ -163,6 +224,18 @@ extension ManagedObjectManager {
         }
         
         return fetchRequest
+        
+    }
+    
+    
+    // MARK: Results
+    
+    private func results() -> [T] {
+        
+        var error:NSError?
+        var results = self.context.executeFetchRequest(self.fetchRequest(), error: &error) as! [T]
+        
+        return results
         
     }
     

@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="7701" systemVersion="14F27" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Batch" representedClassName="CoreDataManager_Example.Batch" syncable="YES">
+        <attribute name="id" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="name" attributeType="String" syncable="YES"/>
+        <relationship name="clicks" toMany="YES" deletionRule="Cascade" destinationEntity="Click" inverseName="batch" inverseEntity="Click" syncable="YES"/>
+    </entity>
     <entity name="Click" representedClassName="CoreDataManager_Example.Click" syncable="YES">
         <attribute name="clickID" attributeType="Integer 64" syncable="YES"/>
         <attribute name="timeStamp" attributeType="Date" syncable="YES"/>
+        <relationship name="batch" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Batch" inverseName="clicks" inverseEntity="Batch" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Click" positionX="-63" positionY="-18" width="128" height="75"/>
+        <element name="Click" positionX="-63" positionY="-18" width="128" height="90"/>
+        <element name="Batch" positionX="-54" positionY="9" width="128" height="90"/>
     </elements>
 </model>
