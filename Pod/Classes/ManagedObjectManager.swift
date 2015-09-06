@@ -20,6 +20,15 @@ public class ManagedObjectManager<T:NSManagedObject> {
         self.context = context
     }
     
+    
+    // MARK: Entity
+    
+    public func entityName() -> String {
+        
+        return NSStringFromClass(T).componentsSeparatedByString(".").last!
+        
+    }
+    
 }
 
 //MARK: - Filtering
@@ -117,7 +126,7 @@ extension ManagedObjectManager {
         
         let expressionName = functionName + keyPath
         let expressionDescription = NSExpressionDescription()
-        expressionDescription.name = functionName
+        expressionDescription.name = expressionName
         expressionDescription.expression = expression
         
         var entityDescription = NSEntityDescription.entityForName(self.entityName(), inManagedObjectContext: self.context)!
@@ -131,15 +140,23 @@ extension ManagedObjectManager {
         let entityAttributeDesc = entityDescription.attributesByName[lastKey] as! NSAttributeDescription
         expressionDescription.expressionResultType = entityAttributeDesc.attributeType
         
-        let fetchRequest = self.fetchRequest()
+        var error: NSError?
+        // Since we are changing expressionResultType we also need to check if there are any objects returned
+        
+        var fetchRequest = self.fetchRequest()
+        let objectCount = self.context.countForFetchRequest(fetchRequest, error: &error)
+        if objectCount == 0 || error != nil {
+            return nil
+        }
+        
+        fetchRequest = self.fetchRequest()
         fetchRequest.resultType = NSFetchRequestResultType.DictionaryResultType
         fetchRequest.propertiesToFetch = [expressionDescription]
         
-        var error: NSError?
-        let results = self.context.executeFetchRequest(fetchRequest, error: &error)!
+        let results = self.context.executeFetchRequest(fetchRequest, error: &error)
         
-        if results.count > 0 {
-            return results[0].valueForKey(functionName)
+        if error == nil && results!.count > 0 {
+            return results![0].valueForKey(expressionName)
         }
         
         return nil
@@ -195,14 +212,6 @@ extension ManagedObjectManager {
 //MARK: - Private methods
 
 extension ManagedObjectManager {
-    
-    // MARK: Entity
-    
-    private func entityName() -> String {
-        
-        return NSStringFromClass(T).componentsSeparatedByString(".").last!
-        
-    }
     
     
     // MARK: Fetch requests

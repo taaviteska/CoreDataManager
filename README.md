@@ -24,6 +24,10 @@ pod "CoreDataManager"
 
 Taavi Teska ([Thorgate](http://thorgate.eu/))
 
+## Known bugs
+
+- Aggregate methods don't work with in-memory persistent stores (NSInMemoryStoreType). Avoid using CoreDataManager.setupInMemoryStoreCoordinator() when using aggregation helpers
+
 ## Credits
 
 CoreDataManager is using some of the ideas from [CoreDataSimpleDemo](https://github.com/iascchen/SwiftCoreDataSimpleDemo) example for managed object contexts

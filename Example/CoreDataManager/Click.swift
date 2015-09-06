@@ -9,11 +9,11 @@
 import Foundation
 import CoreData
 
-class Click: NSManagedObject {
+public class Click: NSManagedObject {
 
-    @NSManaged var clickID: NSNumber
-    @NSManaged var timeStamp: NSDate
+    @NSManaged public var clickID: NSNumber
+    @NSManaged public var timeStamp: NSDate
     
-    @NSManaged var batch: Batch
+    @NSManaged public var batch: Batch
 
 }

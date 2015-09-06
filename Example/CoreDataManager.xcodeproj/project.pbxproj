@@ -18,6 +18,8 @@
 		A4758E7B1B9B226800D6CBCF /* CoreDataManager.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A4758E791B9B226800D6CBCF /* CoreDataManager.xcdatamodeld */; };
 		A4758EC61B9BA21300D6CBCF /* Click.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4758EC51B9BA21300D6CBCF /* Click.swift */; };
 		A4758ECF1B9C622B00D6CBCF /* Batch.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4758ECE1B9C622B00D6CBCF /* Batch.swift */; };
+		A4758ED51B9C932500D6CBCF /* ContextTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4758ED01B9C919B00D6CBCF /* ContextTestCase.swift */; };
+		A4758ED61B9C932500D6CBCF /* ManagedObjectManagerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4758ED21B9C925A00D6CBCF /* ManagedObjectManagerTestCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +51,8 @@
 		A4758E7A1B9B226800D6CBCF /* CoreDataManager.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataManager.xcdatamodel; sourceTree = "<group>"; };
 		A4758EC51B9BA21300D6CBCF /* Click.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Click.swift; sourceTree = "<group>"; };
 		A4758ECE1B9C622B00D6CBCF /* Batch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Batch.swift; path = Models/Batch.swift; sourceTree = "<group>"; };
+		A4758ED01B9C919B00D6CBCF /* ContextTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextTestCase.swift; sourceTree = "<group>"; };
+		A4758ED21B9C925A00D6CBCF /* ManagedObjectManagerTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObjectManagerTestCase.swift; sourceTree = "<group>"; };
 		C289BEA78384DD3893AB5CDE /* CoreDataManager.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = CoreDataManager.podspec; path = ../CoreDataManager.podspec; sourceTree = "<group>"; };
 		E6E29CF14080A38399A7FB57 /* Pods_CoreDataManager_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CoreDataManager_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E815DF493BBAF88D091CB604 /* Pods-CoreDataManager_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoreDataManager_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CoreDataManager_Tests/Pods-CoreDataManager_Tests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -123,6 +127,8 @@
 		607FACE81AFB9204008FA782 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				A4758ED01B9C919B00D6CBCF /* ContextTestCase.swift */,
+				A4758ED21B9C925A00D6CBCF /* ManagedObjectManagerTestCase.swift */,
 				607FACEB1AFB9204008FA782 /* SetupTestCase.swift */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 			);
@@ -387,6 +393,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A4758ED51B9C932500D6CBCF /* ContextTestCase.swift in Sources */,
+				A4758ED61B9C932500D6CBCF /* ManagedObjectManagerTestCase.swift in Sources */,
 				607FACEC1AFB9204008FA782 /* SetupTestCase.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
