@@ -13,11 +13,26 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Installation
 
-CoreDataManager is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
+CoreDataManager is available through [CocoaPods](http://cocoapods.org). Install it with the following command:
+
+```bash
+$ gem install cocoapods
+```
+
+To install CoreDataManager add a file named `Podfile` to the project's root folder with contents similar to:
 
 ```ruby
-pod "CoreDataManager"
+source 'https://github.com/CocoaPods/Specs.git'
+platform :ios, '8.0'
+use_frameworks!
+
+pod 'CoreDataManager', '~> 0.2'
+```
+
+Then, run the following command:
+
+```bash
+$ pod install
 ```
 
 ## Author
