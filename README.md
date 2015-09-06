@@ -1,9 +1,9 @@
 # CoreDataManager
 
-[![CI Status](http://img.shields.io/travis/Taavi Teska/CoreDataManager.svg?style=flat)](https://travis-ci.org/Taavi Teska/CoreDataManager)
 [![Version](https://img.shields.io/cocoapods/v/CoreDataManager.svg?style=flat)](http://cocoapods.org/pods/CoreDataManager)
 [![License](https://img.shields.io/cocoapods/l/CoreDataManager.svg?style=flat)](http://cocoapods.org/pods/CoreDataManager)
 [![Platform](https://img.shields.io/cocoapods/p/CoreDataManager.svg?style=flat)](http://cocoapods.org/pods/CoreDataManager)
+[![Twitter](https://img.shields.io/badge/twitter-@TaaviTeska-blue.svg?style=flat)](https://twitter.com/TaaviTeska)
 
 ## Usage
 
