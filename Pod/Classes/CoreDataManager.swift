@@ -34,11 +34,21 @@ public class CoreDataManager:NSObject {
     public static func setupWithModel(model: String) {
         self.sharedInstance.modelName = model
         self.sharedInstance.databaseName = model.stringByAppendingString(".sqlite")
+        
+        self.sharedInstance.store.setupPersistentStoreCoordinator()
     }
     
     public static func setupWithModel(model: String, andDatabase database: String) {
         self.sharedInstance.modelName = model
         self.sharedInstance.databaseName = database
+        
+        self.sharedInstance.store.setupPersistentStoreCoordinator()
+    }
+    
+    public static func setupInMemoryWithModel(model: String) {
+        self.sharedInstance.modelName = model
+        
+        self.sharedInstance.store.setupInMemoryStoreCoordinator()
     }
 
 
@@ -46,18 +56,24 @@ public class CoreDataManager:NSObject {
     
     public lazy var mainContext: NSManagedObjectContext = {
         // Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.)
-        let coordinator = self.store.persistentStoreCoordinator
-        var managedObjectContext = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.MainQueueConcurrencyType)
-        managedObjectContext.persistentStoreCoordinator = coordinator
-        return managedObjectContext
-        }()
+        if let coordinator = self.store.storeCoordinator {
+            var managedObjectContext = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.MainQueueConcurrencyType)
+            managedObjectContext.persistentStoreCoordinator = coordinator
+            return managedObjectContext
+        } else {
+            fatalError("Store coordinator not set up. Use one of the CoreDataManager.setup() methods")
+        }
+    }()
     
     public lazy var backgroundContext: NSManagedObjectContext = {
         // Returns the managed object context for the application (which is already bound to the persistent store coordinator for the application.)
-        let coordinator = self.store.persistentStoreCoordinator
-        var backgroundContext = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.PrivateQueueConcurrencyType)
-        backgroundContext.persistentStoreCoordinator = coordinator
-        return backgroundContext
+        if let coordinator = self.store.storeCoordinator {
+            var backgroundContext = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.PrivateQueueConcurrencyType)
+            backgroundContext.persistentStoreCoordinator = coordinator
+            return backgroundContext
+        } else {
+            fatalError("Store coordinator not set up. Use one of the CoreDataManager.setup() methods")
+        }
         }()
     
     
