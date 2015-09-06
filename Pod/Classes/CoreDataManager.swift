@@ -13,12 +13,12 @@ public class CoreDataManager:NSObject {
     
     public static let sharedInstance = CoreDataManager()
     
-    var modelName: String?
-    var databaseURL: NSURL?
+    private(set) public var modelName: String?
+    private(set) public var databaseURL: NSURL?
     
     private var storeCoordinator: NSPersistentStoreCoordinator?
     
-    override init(){
+    override public init(){
         super.init()
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "contextDidSaveContext:", name: NSManagedObjectContextDidSaveNotification, object: nil)
@@ -49,7 +49,7 @@ public class CoreDataManager:NSObject {
     
     private lazy var managedObjectModel: NSManagedObjectModel = {
         // The managed object model for the application. This property is not optional. It is a fatal error for the application not to be able to find and load its model.
-        if let modelName = CoreDataManager.sharedInstance.modelName {
+        if let modelName = self.modelName {
             if let modelURL = NSBundle.mainBundle().URLForResource(modelName, withExtension: "momd") {
                 if let model = NSManagedObjectModel(contentsOfURL: modelURL) {
                     return model
@@ -70,26 +70,26 @@ public class CoreDataManager:NSObject {
 
 extension CoreDataManager {
     
-    public static func setupWithModel(model: String) {
+    public func setupWithModel(model: String) {
         self.setupWithModel(model, andFileName: model.stringByAppendingString(".sqlite"))
     }
     
-    public static func setupWithModel(model: String, andFileName fileName: String) {
-        let url = self.sharedInstance.applicationDocumentsDirectory.URLByAppendingPathComponent(fileName)
+    public func setupWithModel(model: String, andFileName fileName: String) {
+        let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent(fileName)
         self.setupWithModel(model, andFileURL: url)
     }
     
-    public static func setupWithModel(model: String, andFileURL url: NSURL) {
-        self.sharedInstance.modelName = model
-        self.sharedInstance.databaseURL = url
+    public func setupWithModel(model: String, andFileURL url: NSURL) {
+        self.modelName = model
+        self.databaseURL = url
         
-        self.sharedInstance.setupPersistentStoreCoordinator()
+        self.setupPersistentStoreCoordinator()
     }
     
-    public static func setupInMemoryWithModel(model: String) {
-        self.sharedInstance.modelName = model
+    public func setupInMemoryWithModel(model: String) {
+        self.modelName = model
         
-        self.sharedInstance.setupInMemoryStoreCoordinator()
+        self.setupInMemoryStoreCoordinator()
     }
     
 }
@@ -143,7 +143,7 @@ extension CoreDataManager {
         }
         
         var coordinator: NSPersistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
-        if let databaseURL = CoreDataManager.sharedInstance.databaseURL {
+        if let databaseURL = self.databaseURL {
             var error: NSError? = nil
             
             if coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: databaseURL, options: nil, error: &error) == nil {
