@@ -16,6 +16,7 @@
 		743FF9454BF697FD47AA2F65 /* Pods_CoreDataManager_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F57A48C82A921432F72BAD58 /* Pods_CoreDataManager_Tests.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		7E39BBE30F2942E065E75542 /* Pods_CoreDataManager_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6E29CF14080A38399A7FB57 /* Pods_CoreDataManager_Example.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A4758E7B1B9B226800D6CBCF /* CoreDataManager.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A4758E791B9B226800D6CBCF /* CoreDataManager.xcdatamodeld */; };
+		A4758EC61B9BA21300D6CBCF /* Click.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4758EC51B9BA21300D6CBCF /* Click.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +46,7 @@
 		76690BD71CF636F5EC69C60E /* Pods-CoreDataManager_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoreDataManager_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CoreDataManager_Tests/Pods-CoreDataManager_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		884631BF2FCA26ACF726FE04 /* Pods-CoreDataManager_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoreDataManager_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CoreDataManager_Example/Pods-CoreDataManager_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		A4758E7A1B9B226800D6CBCF /* CoreDataManager.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataManager.xcdatamodel; sourceTree = "<group>"; };
+		A4758EC51B9BA21300D6CBCF /* Click.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Click.swift; sourceTree = "<group>"; };
 		C289BEA78384DD3893AB5CDE /* CoreDataManager.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = CoreDataManager.podspec; path = ../CoreDataManager.podspec; sourceTree = "<group>"; };
 		E6E29CF14080A38399A7FB57 /* Pods_CoreDataManager_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CoreDataManager_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E815DF493BBAF88D091CB604 /* Pods-CoreDataManager_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoreDataManager_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CoreDataManager_Tests/Pods-CoreDataManager_Tests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 		607FACD21AFB9204008FA782 /* Example for CoreDataManager */ = {
 			isa = PBXGroup;
 			children = (
+				A4758EC71B9BA21A00D6CBCF /* Models */,
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ClickViewController.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
@@ -151,6 +154,14 @@
 				76690BD71CF636F5EC69C60E /* Pods-CoreDataManager_Tests.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		A4758EC71B9BA21A00D6CBCF /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A4758EC51B9BA21300D6CBCF /* Click.swift */,
+			);
+			name = Models;
 			sourceTree = "<group>";
 		};
 		BB814B9F5F33AB471126DB28 /* Frameworks */ = {
@@ -361,6 +372,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A4758EC61B9BA21300D6CBCF /* Click.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ClickViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				A4758E7B1B9B226800D6CBCF /* CoreDataManager.xcdatamodeld in Sources */,

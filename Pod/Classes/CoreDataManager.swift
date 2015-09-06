@@ -63,19 +63,6 @@ public class CoreDataManager:NSObject {
     
     // MARK: - Managed Object Contexts - saving
     
-    public func saveContext(context: NSManagedObjectContext) -> NSError? {
-        var error: NSError? = nil
-        if context.hasChanges {
-            context.save(&error)
-        }
-        
-        return error
-    }
-    
-    public func saveContext() -> NSError? {
-        return self.saveContext( self.backgroundContext )
-    }
-    
     // call back function by saveContext, support multi-thread
     func contextDidSaveContext(notification: NSNotification) {
         let sender = notification.object as! NSManagedObjectContext

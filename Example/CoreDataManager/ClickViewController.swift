@@ -38,7 +38,7 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
             let newClick = NSEntityDescription.insertNewObjectForEntityForName("Click", inManagedObjectContext: context) as! NSManagedObject
             newClick.setValue(NSDate(), forKey: "timeStamp")
             newClick.setValue(lastClickID + 1, forKey: "clickID")
-            self.cdm.saveContext()
+            context.save()
         }
     }
     
@@ -84,11 +84,9 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
                 var error:NSError?
                 let clicks = context.executeFetchRequest(fetchRequest, error: &error) as! [NSManagedObject]
                 for click in clicks {
-                    context.deleteObject(click)
+                    click.delete()
                 }
-                if context.hasChanges {
-                    self.cdm.saveContext()
-                }
+                context.save()
             }
         }
     }
