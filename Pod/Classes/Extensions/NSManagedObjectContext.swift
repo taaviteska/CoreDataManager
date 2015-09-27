@@ -38,6 +38,19 @@ extension NSManagedObjectContext {
         self.syncData(json, withSerializer: serializer, complete: complete)
     }
     
+    public func insertOrUpdate<T:NSManagedObject>(entity: T.Type, withJSON json: JSON, andIdentifiers identifiers: [String], complete: (() -> Void)? = nil) {
+        let serializer = CDMSerializer<T>()
+        serializer.deleteMissing = false
+        serializer.identifiers = identifiers
+        
+        serializer.mapping = [String: CDMAttribute]()
+        for attr in json.dictionary!.keys {
+            serializer.mapping[attr] = CDMAttribute(attr)
+        }
+        
+        self.syncData(json, withSerializer: serializer, complete: complete)
+    }
+    
     public func syncData<T:NSManagedObject>(json: JSON, withSerializer serializer: CDMSerializer<T>, complete: (() -> Void)? = nil) {
         self.performBlock({ () -> Void in
             self.syncDataArray(json, withSerializer: serializer, andSave: true)
