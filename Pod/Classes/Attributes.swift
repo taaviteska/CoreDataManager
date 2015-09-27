@@ -20,6 +20,10 @@ public class CDMAttribute {
         self.key = key
     }
     
+    public convenience init(_ args: SubscriptType...) {
+        self.init(args)
+    }
+    
     public func valueAsJSON(_ attributes: JSON? = nil) -> JSON? {
         return attributes?[key]
     }

@@ -16,6 +16,7 @@ public typealias CDMValidator = (data:JSON) -> JSON?
 public class CDMSerializer<T:NSManagedObject> {
     
     public var identifiers = [String]()
+    public var forceInsert = false
     public var insertMissing = true
     public var updateExisting = true
     public var deleteMissing = true

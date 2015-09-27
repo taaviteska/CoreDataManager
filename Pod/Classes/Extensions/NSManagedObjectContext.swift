@@ -25,9 +25,22 @@ extension NSManagedObjectContext {
         return error
     }
     
-    public func syncData<T:NSManagedObject>(data: JSON, withSerializer serializer: CDMSerializer<T>, complete: (() -> Void)? = nil) {
+    public func insert<T:NSManagedObject>(entity: T.Type, withJSON json: JSON, complete: (() -> Void)? = nil) {
+        let serializer = CDMSerializer<T>()
+        serializer.forceInsert = true
+        serializer.deleteMissing = false
+        
+        serializer.mapping = [String: CDMAttribute]()
+        for attr in json.dictionary!.keys {
+            serializer.mapping[attr] = CDMAttribute(attr)
+        }
+        
+        self.syncData(json, withSerializer: serializer, complete: complete)
+    }
+    
+    public func syncData<T:NSManagedObject>(json: JSON, withSerializer serializer: CDMSerializer<T>, complete: (() -> Void)? = nil) {
         self.performBlock({ () -> Void in
-            self.syncDataArray(data, withSerializer: serializer, andSave: true)
+            self.syncDataArray(json, withSerializer: serializer, andSave: true)
             
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 complete?()
@@ -35,14 +48,14 @@ extension NSManagedObjectContext {
         })
     }
     
-    func syncDataArray<T:NSManagedObject>(data: JSON, withSerializer serializer: CDMSerializer<T>, andSave save: Bool) -> NSSet {
+    func syncDataArray<T:NSManagedObject>(json: JSON, withSerializer serializer: CDMSerializer<T>, andSave save: Bool) -> NSSet {
         
-        if data == nil {
+        if json == nil {
             return NSSet()
         }
         
         // Validate data
-        var validData = data.array != nil ? data : JSON([data])
+        var validData = json.array != nil ? json : JSON([json])
         
         for validator in serializer.getValidators() {
             var _dataArray = [JSON]()
@@ -99,31 +112,38 @@ extension NSManagedObjectContext {
         var resultingObjects = [T]()
         
         for (index: String, attributes: JSON) in validData {
-            var predicates = [NSPredicate]()
-            
-            for identifier in serializer.identifiers {
-                if let entityID = serializer.mapping[identifier]!.valueFrom(attributes) as? Int {
-                    predicates.append(NSPredicate(format: "\(identifier) == %d", entityID))
-                } else if let entityID = serializer.mapping[identifier]!.valueFrom(attributes) as? String {
-                    predicates.append(NSPredicate(format: "\(identifier) == %@", entityID))
-                }
-            }
-            
-            predicates.extend(serializer.getGroupers())
-            let existingObjects = self.managerFor(T).filter(NSCompoundPredicate.andPredicateWithSubpredicates(predicates)).array
-            
-            if existingObjects.isEmpty {
-                if serializer.insertMissing {
-                    let object = NSEntityDescription.insertNewObjectForEntityForName(self.managerFor(T).entityName(), inManagedObjectContext: self) as! T
-                    serializer.addAttributes(attributes, toObject: object)
-                    resultingObjects.append(object)
-                }
+            if serializer.forceInsert {
+                // TODO: Move insert logic to one place
+                let object = NSEntityDescription.insertNewObjectForEntityForName(self.managerFor(T).entityName(), inManagedObjectContext: self) as! T
+                serializer.addAttributes(attributes, toObject: object)
+                resultingObjects.append(object)
             } else {
-                for (index, object) in enumerate(existingObjects) {
-                    if serializer.updateExisting {
-                        serializer.addAttributes(attributes, toObject: object)
+                var predicates = [NSPredicate]()
+                
+                for identifier in serializer.identifiers {
+                    if let entityID = serializer.mapping[identifier]!.valueFrom(attributes) as? Int {
+                        predicates.append(NSPredicate(format: "\(identifier) == %d", entityID))
+                    } else if let entityID = serializer.mapping[identifier]!.valueFrom(attributes) as? String {
+                        predicates.append(NSPredicate(format: "\(identifier) == %@", entityID))
                     }
-                    resultingObjects.append(object)
+                }
+                
+                predicates.extend(serializer.getGroupers())
+                let existingObjects = self.managerFor(T).filter(NSCompoundPredicate.andPredicateWithSubpredicates(predicates)).array
+                
+                if existingObjects.isEmpty {
+                    if serializer.insertMissing {
+                        let object = NSEntityDescription.insertNewObjectForEntityForName(self.managerFor(T).entityName(), inManagedObjectContext: self) as! T
+                        serializer.addAttributes(attributes, toObject: object)
+                        resultingObjects.append(object)
+                    }
+                } else {
+                    for (index, object) in enumerate(existingObjects) {
+                        if serializer.updateExisting {
+                            serializer.addAttributes(attributes, toObject: object)
+                        }
+                        resultingObjects.append(object)
+                    }
                 }
             }
             
