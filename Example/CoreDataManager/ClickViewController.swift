@@ -6,10 +6,9 @@
 //  Copyright (c) 2015 Taavi Teska. All rights reserved.
 //
 
-import UIKit
 import CoreData
-
 import CoreDataManager
+import UIKit
 
 class ClickViewController: UITableViewController, NSFetchedResultsControllerDelegate {
     
@@ -56,8 +55,9 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
     // MARK: - Private
     
     private func configureCell(cell: UITableViewCell, atIndexPath indexPath: NSIndexPath) {
-        let object = self.fetchedResultsController.objectAtIndexPath(indexPath) as! NSManagedObject
-        cell.textLabel!.text = object.valueForKey("timeStamp")!.description
+        if let object = self.fetchedResultsController.objectAtIndexPath(indexPath) as? Click {
+            cell.textLabel!.text = object.timeStamp.description
+        }
     }
     
     // MARK: - Table View

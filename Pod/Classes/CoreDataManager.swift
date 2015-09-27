@@ -24,7 +24,7 @@ public class CoreDataManager:NSObject {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "contextDidSaveContext:", name: NSManagedObjectContextDidSaveNotification, object: nil)
     }
     
-    deinit{
+    deinit {
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
@@ -107,13 +107,6 @@ extension CoreDataManager {
                 self.backgroundContext.mergeChangesFromContextDidSaveNotification(notification)
             }
         } else if sender === self.backgroundContext {
-            self.mainContext.performBlock {
-                self.mainContext.mergeChangesFromContextDidSaveNotification(notification)
-            }
-        } else {
-            self.backgroundContext.performBlock {
-                self.backgroundContext.mergeChangesFromContextDidSaveNotification(notification)
-            }
             self.mainContext.performBlock {
                 self.mainContext.mergeChangesFromContextDidSaveNotification(notification)
             }
