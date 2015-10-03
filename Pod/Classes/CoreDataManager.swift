@@ -44,7 +44,7 @@ public class CoreDataManager:NSObject {
     
     private lazy var applicationDocumentsDirectory: NSURL = {
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-        return urls[urls.count-1] as! NSURL
+        return urls[urls.count-1]
         }()
     
     private lazy var managedObjectModel: NSManagedObjectModel = {
@@ -121,7 +121,7 @@ extension CoreDataManager {
 
     private func getManagedObjectContextWithType(type: NSManagedObjectContextConcurrencyType) -> NSManagedObjectContext {
         if let coordinator = self.storeCoordinator {
-            var managedObjectContext = NSManagedObjectContext(concurrencyType: type)
+            let managedObjectContext = NSManagedObjectContext(concurrencyType: type)
             managedObjectContext.persistentStoreCoordinator = coordinator
             return managedObjectContext
         } else {
@@ -135,11 +135,12 @@ extension CoreDataManager {
             return
         }
         
-        var coordinator: NSPersistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
+        let coordinator: NSPersistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
         if let databaseURL = self.databaseURL {
-            var error: NSError? = nil
             
-            if coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: databaseURL, options: nil, error: &error) == nil {
+            do {
+                try coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: databaseURL, options: nil)
+            } catch {
                 fatalError("There was an error adding persistent SQLite store on url \(databaseURL)")
             }
             
@@ -155,14 +156,12 @@ extension CoreDataManager {
             return
         }
         
-        var coordinator: NSPersistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
-        var error: NSError?
-        if coordinator.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil, error: &error) != nil {
+        let coordinator: NSPersistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
+        do {
+            try coordinator.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil)
             self.storeCoordinator = coordinator
-            
-            return
+        } catch {
+            fatalError("There was an error adding in-memory store")
         }
-        
-        fatalError("There was an error adding in-memory store")
     }
 }

@@ -48,7 +48,7 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
                 newBatch.name = "Batch \(self.thisBatchID)"
                 newClick.batch = newBatch
             }
-            context.save()
+            try! context.saveIfChanged()
         }
     }
     
@@ -73,12 +73,12 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let sectionInfo = self.fetchedResultsController.sections![section] as! NSFetchedResultsSectionInfo
+        let sectionInfo = self.fetchedResultsController.sections![section] 
         return sectionInfo.numberOfObjects
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("ClickCell", forIndexPath: indexPath) as! UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("ClickCell", forIndexPath: indexPath)
         self.configureCell(cell, atIndexPath: indexPath)
         return cell
     }
@@ -95,15 +95,8 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
             
             let context = self.cdm.backgroundContext
             context.performBlock {
-                let fetchRequest = NSFetchRequest(entityName: "Click")
-                fetchRequest.predicate = NSPredicate(format: "clickID = %d", clickID)
-                fetchRequest.fetchLimit = 1
-                var error:NSError?
-                let clicks = context.executeFetchRequest(fetchRequest, error: &error) as! [NSManagedObject]
-                for click in clicks {
-                    click.delete()
-                }
-                context.save()
+                context.managerFor(Click).filter(format: "clickID = %d", clickID).delete()
+                try! context.saveIfChanged()
             }
         }
     }
@@ -118,7 +111,6 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
         let fetchRequest = NSFetchRequest(entityName: "Click")
         
         let sortDescriptor = NSSortDescriptor(key: "timeStamp", ascending: false)
-        let sortDescriptors = [sortDescriptor]
         
         fetchRequest.sortDescriptors = [sortDescriptor]
         
@@ -126,13 +118,7 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
         aFetchedResultsController.delegate = self
         _fetchedResultsController = aFetchedResultsController
         
-        var error: NSError? = nil
-        if !_fetchedResultsController!.performFetch(&error) {
-            // Replace this implementation with code to handle the error appropriately.
-            // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-            //println("Unresolved error \(error), \(error.userInfo)")
-            abort()
-        }
+        try! _fetchedResultsController!.performFetch()
         
         return _fetchedResultsController!
     }
@@ -164,8 +150,6 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
         case .Move:
             tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
             tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Fade)
-        default:
-            return
         }
     }
     

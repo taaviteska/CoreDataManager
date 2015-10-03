@@ -58,7 +58,7 @@ extension ManagedObjectManager {
     public func filter(predicate: NSPredicate) -> ManagedObjectManager<T> {
         
         if let currentPredicate = managerPredicate {
-            self.managerPredicate = NSCompoundPredicate.andPredicateWithSubpredicates([currentPredicate, predicate])
+            self.managerPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [currentPredicate, predicate])
         } else {
             self.managerPredicate = predicate
         }
@@ -76,7 +76,7 @@ extension ManagedObjectManager {
     public func orderBy(argument: String) -> ManagedObjectManager<T> {
         
         let isAscending = !argument.hasPrefix("-")
-        let key = isAscending ? argument : argument.substringFromIndex(advance(argument.startIndex, 1))
+        let key = isAscending ? argument : argument.substringFromIndex(argument.startIndex.advancedBy(1))
         
         self.managerSortDescriptors.append(NSSortDescriptor(key: key, ascending: isAscending))
         
@@ -137,13 +137,13 @@ extension ManagedObjectManager {
             let relationshipDesc = entityDescription.propertiesByName[key] as! NSRelationshipDescription
             entityDescription = relationshipDesc.destinationEntity!
         }
-        let entityAttributeDesc = entityDescription.attributesByName[lastKey] as! NSAttributeDescription
+        let entityAttributeDesc = entityDescription.attributesByName[lastKey]!
         expressionDescription.expressionResultType = entityAttributeDesc.attributeType
         
-        var error: NSError?
         // Since we are changing expressionResultType we also need to check if there are any objects returned
         
         var fetchRequest = self.fetchRequest()
+        var error: NSError?
         let objectCount = self.context.countForFetchRequest(fetchRequest, error: &error)
         if objectCount == 0 || error != nil {
             return nil
@@ -153,10 +153,13 @@ extension ManagedObjectManager {
         fetchRequest.resultType = NSFetchRequestResultType.DictionaryResultType
         fetchRequest.propertiesToFetch = [expressionDescription]
         
-        let results = self.context.executeFetchRequest(fetchRequest, error: &error)
-        
-        if error == nil && results!.count > 0 {
-            return results![0].valueForKey(expressionName)
+        do {
+            let results = try self.context.executeFetchRequest(fetchRequest)
+            if results.count > 0 {
+                return results[0].valueForKey(expressionName)
+            }
+        } catch {
+            return nil
         }
         
         return nil
@@ -197,7 +200,7 @@ extension ManagedObjectManager {
 extension ManagedObjectManager {
     
     public func delete() -> Int {
-        var results = self.resultsWithPredicate(self.managerPredicate, andSortDescriptors: self.managerSortDescriptors, withFetchLimit: self.managerFetchLimit)
+        let results = self.resultsWithPredicate(self.managerPredicate, andSortDescriptors: self.managerSortDescriptors, withFetchLimit: self.managerFetchLimit)
         let resultsCount = results.count
         
         for result in results {
@@ -241,10 +244,11 @@ extension ManagedObjectManager {
     
     private func results() -> [T] {
         
-        var error:NSError?
-        var results = self.context.executeFetchRequest(self.fetchRequest(), error: &error) as! [T]
-        
-        return results
+        do {
+            return try self.context.executeFetchRequest(self.fetchRequest()) as! [T]
+        } catch {
+            return []
+        }
         
     }
     
@@ -252,10 +256,11 @@ extension ManagedObjectManager {
         
         let fetchRequest = self.fetchRequestWithPredicate(predicate, andSortDescriptors: sortDescriptors, withFetchLimit: limit)
         
-        var error:NSError?
-        var results = self.context.executeFetchRequest(fetchRequest, error: &error) as! [T]
-        
-        return results
+        do {
+            return try self.context.executeFetchRequest(fetchRequest) as! [T]
+        } catch {
+            return []
+        }
         
     }
     

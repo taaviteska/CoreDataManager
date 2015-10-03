@@ -14,7 +14,6 @@ class ManagedObjectManagerTestCase: XCTestCase {
         self.cdm = CoreDataManager()
         self.cdm.setupInMemoryWithModel("CoreDataManager")
         
-        let manager = self.cdm.mainContext.managerFor(Click)
         self.cdm.mainContext.performBlockAndWait { () -> Void in
             let batch = NSEntityDescription.insertNewObjectForEntityForName("Batch", inManagedObjectContext: self.cdm.mainContext) as! Batch
             batch.id = 100
@@ -27,7 +26,7 @@ class ManagedObjectManagerTestCase: XCTestCase {
                 click.batch = batch
             }
             
-            self.cdm.mainContext.save()
+            try! self.cdm.mainContext.saveIfChanged()
         }
     }
     
@@ -58,12 +57,12 @@ class ManagedObjectManagerTestCase: XCTestCase {
         // http://stackoverflow.com/questions/4387403/nscfnumber-count-unrecognized-selector
         let fileManager = NSFileManager.defaultManager()
         let documentDirs = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-        let documentsURL = documentDirs[documentDirs.count-1] as! NSURL
+        let documentsURL = documentDirs[documentDirs.count-1] 
         let testingURL = documentsURL.URLByAppendingPathComponent("Testing")
         let databaseURL = testingURL.URLByAppendingPathComponent("TestDatabase.sqlite")
         let SQLiteCDM = CoreDataManager()
         
-        fileManager.createDirectoryAtPath(testingURL.path!, withIntermediateDirectories: true, attributes: nil, error: nil)
+        try! fileManager.createDirectoryAtPath(testingURL.path!, withIntermediateDirectories: true, attributes: nil)
         SQLiteCDM.setupWithModel("CoreDataManager", andFileURL: databaseURL)
         
         let SQLiteManager = SQLiteCDM.mainContext.managerFor(Click)
@@ -79,25 +78,25 @@ class ManagedObjectManagerTestCase: XCTestCase {
                 click.batch = batch
             }
             
-            SQLiteCDM.mainContext.save()
+            try! SQLiteCDM.mainContext.saveIfChanged()
             
-            XCTAssertEqual(SQLiteManager.min("clickID") as! Int, 0, "Aggregation MIN is wrong")
+            XCTAssertEqual(SQLiteManager.min("clickID") as? Int, 0, "Aggregation MIN is wrong")
             
-            XCTAssertEqual(SQLiteManager.max("clickID") as! Int, 4, "Aggregation MAX is wrong")
+            XCTAssertEqual(SQLiteManager.max("clickID") as? Int, 4, "Aggregation MAX is wrong")
             
-            XCTAssertEqual(SQLiteManager.sum("clickID") as! Int, 10, "Aggregation SUM is wrong")
+            XCTAssertEqual(SQLiteManager.sum("clickID") as? Int, 10, "Aggregation SUM is wrong")
             
-            XCTAssertEqual(SQLiteManager.aggregate("average", forKeyPath: "clickID") as! Int, 2, "Aggregation AVG is wrong")
+            XCTAssertEqual(SQLiteManager.aggregate("average", forKeyPath: "clickID") as? Int, 2, "Aggregation AVG is wrong")
         }
         
         
         // Clear documents directory
-        if let fileNames = fileManager.contentsOfDirectoryAtPath(documentsURL.path!, error: nil) as? [String] {
-            // For each file in the directory, create full path and delete the file
-            for fileName in fileNames {
-                if fileName.hasPrefix("Test") {
-                    fileManager.removeItemAtPath(documentsURL.path!.stringByAppendingPathComponent(fileName), error: nil)
-                }
+        let fileNames = try! fileManager.contentsOfDirectoryAtPath(documentsURL.path!)
+        
+        // For each file in the directory, create full path and delete the file
+        for fileName in fileNames {
+            if fileName.hasPrefix("Test") {
+                try! fileManager.removeItemAtURL(documentsURL.URLByAppendingPathComponent(fileName))
             }
         }
     }
@@ -152,7 +151,7 @@ class ManagedObjectManagerTestCase: XCTestCase {
         var manager = self.cdm.mainContext.managerFor(Click)
         self.cdm.mainContext.performBlockAndWait { () -> Void in
             manager.filter(format: "clickID > 0").delete()
-            self.cdm.mainContext.save()
+            try! self.cdm.mainContext.saveIfChanged()
             
             manager = self.cdm.mainContext.managerFor(Click)
             XCTAssertEqual(manager.count, 1, "Clicks count after saving is not correct")
