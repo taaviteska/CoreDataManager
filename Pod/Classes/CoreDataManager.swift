@@ -21,7 +21,7 @@ public class CoreDataManager:NSObject {
     override public init(){
         super.init()
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "contextDidSaveContext:", name: NSManagedObjectContextDidSaveNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(CoreDataManager.contextDidSaveContext(_:)), name: NSManagedObjectContextDidSaveNotification, object: nil)
     }
     
     deinit {
