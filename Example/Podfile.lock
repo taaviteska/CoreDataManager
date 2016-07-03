@@ -1,17 +1,17 @@
 PODS:
   - CoreDataManager (0.5.0):
     - SwiftyJSON (~> 2.3.0)
-  - SwiftyJSON (2.3.0)
+  - SwiftyJSON (2.3.2)
 
 DEPENDENCIES:
   - CoreDataManager (from `../`)
 
 EXTERNAL SOURCES:
   CoreDataManager:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
   CoreDataManager: 0483e2898f192d5542018e4cb8b0c103c16aea2f
-  SwiftyJSON: 8d6b61a70277ef2a5d710d372e06e7e2d87fb9e4
+  SwiftyJSON: 04ccea08915aa0109039157c7974cf0298da292a
 
 COCOAPODS: 0.38.2
