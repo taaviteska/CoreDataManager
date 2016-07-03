@@ -22,7 +22,7 @@ extension NSManagedObjectContext {
         }
     }
     
-    public func insert<T:NSManagedObject>(entity: T.Type, withJSON json: JSON, complete: ((Bool) -> Void)? = nil) {
+    public func insert<T:NSManagedObject>(entity: T.Type, withJSON json: JSON, complete: ((NSError?) -> Void)? = nil) {
         let serializer = CDMSerializer<T>()
         serializer.forceInsert = true
         serializer.deleteMissing = false
@@ -35,7 +35,7 @@ extension NSManagedObjectContext {
         self.syncData(json, withSerializer: serializer, complete: complete)
     }
     
-    public func insertOrUpdate<T:NSManagedObject>(entity: T.Type, withJSON json: JSON, andIdentifiers identifiers: [String], complete: ((Bool) -> Void)? = nil) {
+    public func insertOrUpdate<T:NSManagedObject>(entity: T.Type, withJSON json: JSON, andIdentifiers identifiers: [String], complete: ((NSError?) -> Void)? = nil) {
         let serializer = CDMSerializer<T>()
         serializer.deleteMissing = false
         serializer.identifiers = identifiers
@@ -48,17 +48,17 @@ extension NSManagedObjectContext {
         self.syncData(json, withSerializer: serializer, complete: complete)
     }
     
-    public func syncData<T:NSManagedObject>(json: JSON, withSerializer serializer: CDMSerializer<T>, complete: ((Bool) -> Void)? = nil) {
+    public func syncData<T:NSManagedObject>(json: JSON, withSerializer serializer: CDMSerializer<T>, complete: ((NSError?) -> Void)? = nil) {
         self.performBlock({ () -> Void in
             do {
                 try self.syncDataArray(json, withSerializer: serializer, andSave: true)
                 
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    complete?(true)
+                    complete?(nil)
                 })
-            } catch {
+            } catch let error as NSError {
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    complete?(false)
+                    complete?(error)
                 })
             }
         })

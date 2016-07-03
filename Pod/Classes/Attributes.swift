@@ -76,11 +76,12 @@ public class CDMAttributeISODate:CDMAttributeString {
 
 public class CDMAttributeToMany<T:NSManagedObject>:CDMAttribute {
     
-    private var serializer:CDMSerializer<T>!
+    private var serializerCallback: (JSON) -> (CDMSerializer<T>)
     
-    public init(_ key: [JSONSubscriptType], serializer: CDMSerializer<T>) {
+    public init(_ key: [JSONSubscriptType], serializerCallback: (JSON) -> (CDMSerializer<T>)) {
+        self.serializerCallback = serializerCallback
         super.init(key)
-        self.serializer = serializer
+        
         self.needsContext = true
     }
     
@@ -90,8 +91,9 @@ public class CDMAttributeToMany<T:NSManagedObject>:CDMAttribute {
     
     override public func valueFrom(attributes: JSON? = nil, inContext context: NSManagedObjectContext) -> AnyObject? {
         if let data = self.valueAsJSON(attributes) {
+            let serializer = self.serializerCallback(attributes!)
             do {
-                return NSSet(array: try context.syncDataArray(data, withSerializer: self.serializer, andSave: false))
+                return NSSet(array: try context.syncDataArray(data, withSerializer: serializer, andSave: false))
             } catch {
                 return nil
             }
@@ -103,6 +105,10 @@ public class CDMAttributeToMany<T:NSManagedObject>:CDMAttribute {
 
 
 public class CDMAttributeToOne<T:NSManagedObject>:CDMAttributeToMany<T> {
+    
+    public override init(_ key: [JSONSubscriptType], serializerCallback: (JSON) -> (CDMSerializer<T>)) {
+        super.init(key, serializerCallback: serializerCallback)
+    }
     
     override public func valueFrom(attributes: JSON? = nil, inContext context: NSManagedObjectContext) -> AnyObject? {
         

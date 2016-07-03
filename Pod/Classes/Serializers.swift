@@ -20,9 +20,10 @@ public class CDMSerializer<T:NSManagedObject> {
     public var insertMissing = true
     public var updateExisting = true
     public var deleteMissing = true
-    public var mapping = [String: CDMAttribute]()
+    public var mapping: [String: CDMAttribute]
     
     public init() {
+        self.mapping = [String: CDMAttribute]()
     }
     
     public func getValidators() -> [CDMValidator] {
@@ -45,7 +46,6 @@ public class CDMSerializer<T:NSManagedObject> {
             } else {
                 newValue = attribute.valueFrom(attributes)
             }
-            
             object.setValue(newValue, forKey: key)
         }
     }
