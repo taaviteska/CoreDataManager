@@ -21,7 +21,7 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
         // Do any additional setup after loading the view, typically from a nib.
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
         
-        let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewClick:")
+        let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: #selector(ClickViewController.insertNewClick(_:)))
         self.navigationItem.rightBarButtonItem = addButton
         
         let lastBatchID = (self.cdm.mainContext.managerFor(Batch).max("id") as? Int) ?? 0
