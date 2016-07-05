@@ -5,6 +5,29 @@
 [![Platform](https://img.shields.io/cocoapods/p/CoreDataManager.svg?style=flat)](http://cocoapods.org/pods/CoreDataManager)
 [![Twitter](https://img.shields.io/badge/twitter-@TaaviTeska-blue.svg?style=flat)](https://twitter.com/TaaviTeska)
 
+CoreDataManager is a layer for simpler Core Data setup and JSON data synchronization
+
+1. [Usage](#usage)
+1. [Minimum requirements](#minimum-requirements)
+1. [Installation](#installation)
+1. [Setup](#setup)
+1. [Managed object contexts](#managed-object-contexts)
+    - [Fetching](#fetching-managed-objects)
+    - [Filtering](#filtering-managed-objects)
+    - [Ordering](#ordering-managed-objects)
+    - [Aggregating](#aggregating-managed-objects)
+    - [Deleting](#deleting-managed-objects)
+1. [Serializers](#serializers)
+    - [Variables](#serializer-variables)
+    - [Methods](#serializer-methods)
+    - [Mapping attributes](#serializer-mapping-attributes)
+    - [Examples](#serializer-examples)
+1. [Syncing JSON data](#syncing-json-data)
+1. [Author](#author)
+1. [Dependencies](#dependencies)
+1. [Credits](#credits)
+1. [License](#license)
+
 ## Usage
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
@@ -257,6 +280,8 @@ Taavi Teska ([Thorgate](http://thorgate.eu/))
 ## Dependencies
 
 - [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON)
+
+All the dependencies are automatically installed when using CocoePods
 
 ## Credits
 
