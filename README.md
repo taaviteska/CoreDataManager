@@ -229,7 +229,26 @@ class EmployeeSerializer<T:Employee>: CDMSerializer<T> {
 
 ## Syncing JSON data
 
-- Will be described soon. Meanwhile you can check tests to get the idea
+```swift
+let serializer = EmployeeSerializer()
+let jsonData = JSON([
+    [
+        "id": 1,
+        "user": ["id": 5, "name": "Mary"],
+        "department": ["id": 2, "name": "iOS development"]
+    ],[
+        "id": 2,
+        "user": ["id": 6, "name": "David"],
+        "department": ["id": 2, "name": "iOS development"]
+    ]
+])
+
+let context = CoreDataManager.sharedInstance.backgroundContext
+context.syncData(jsonData, withSerializer: serializer) { (error) -> Void in
+    // Sync completed
+    // Employees Mary and David have been inserted or updated in core data. Other employees have been deleted
+}
+```
 
 ## Author
 
