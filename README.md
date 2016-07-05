@@ -9,7 +9,10 @@
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
-## Requirements
+## Minimum requirements
+
+- iOS 8.0
+- Xcode 7
 
 ## Installation
 
@@ -26,7 +29,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 use_frameworks!
 
-pod 'CoreDataManager', '~> 0.2'
+pod 'CoreDataManager', '~> 0.6.1'
 ```
 
 Then, run the following command:
@@ -82,7 +85,7 @@ let mainCtx = cdm.mainContext
 let backgroundCtx = cdm.backgroundContext
 ```
 
-## Fetching managed objects
+### Fetching managed objects
 
 ```swift
 // Array of employees
@@ -96,7 +99,7 @@ let oldestEmployee = mainCtx.managerFor(Employee).orderBy("age").first
 let youngestEmployee = mainCtx.managerFor(Employee).orderBy("age").last
 ```
 
-## Filtering managed objects
+### Filtering managed objects
 
 Filter method accepts predicates and can be called with same arguments that a NSPredicate can be initialized
 
@@ -110,7 +113,7 @@ let youngEmployees = youngEmployeeManager.array
 let youngEmployeeCount = youngEmployeeManager.count
 ```
 
-## Ordering managed objects
+### Ordering managed objects
 
 Applying minus sign (-) in front of the attribute will make the ordering descening
 
@@ -122,7 +125,7 @@ let employeesFromYoungest = mainCtx.managerFor(Employee).orderBy(["age", "name"]
 let employeesFromOldest = mainCtx.managerFor(Employee).orderBy(["-age", "name"]).array
 ```
 
-## Aggregating managed objects
+### Aggregating managed objects
 
 ```swift
 // Age of the youngest employee
@@ -138,7 +141,7 @@ let totalAgeOfEmployees = mainCtx.managerFor(Employee).sum("age")
 let avgAgeOfEmployees = mainCtx.managerFor(Employee).aggregate("average", forKeyPath: "age")
 ```
 
-## Deleting managed objects
+### Deleting managed objects
 
 ```swift
 // Delete employees older than 100
@@ -150,7 +153,79 @@ backgroundCtx.performBlock { () -> Void in
 
 ## Serializers
 
-- Will be described soon. Meanwhile you can check tests to get the idea
+### Serializer variables
+
+`identifiers` [String] - Attributes from the mapping that identify the specific object instance that is updated when syncing the data. If no instance is found in the local database then a new instance is created and saved to the database. *Defaults to empty list*.
+
+`forceInsert` Bool - If set to true then the local database is not checked for matching instances and all the synced data is inserted. *Defaults to false*.
+
+`insertMissing` Bool - Determines whether the instances that are not found in the local database should be inserted or not. This is ignored if forceInsert is set to true. *Defaults to true*.
+
+`updateExisting`: Bool - Determines whether the instances that are found in the local database should be updated or not. This is ignored if forceInsert is set to true. *Defaults to true*.
+
+`deleteMissing` Bool - Determines whether the instances that are not found in the synced data, but are present in the local database should be deleted or not. *Defaults to true*.
+
+`mapping` [String: CDMAttribute] - Defines tha mapping for creating the managed object instances. *Defaults to empty dictionary*
+
+### Serializer methods
+
+`func getValidators() -> [CDMValidator]` - Defines the validators for the serializer. Each validator is run before any syncing begins. Each validator gets every item from the synced data one by one as *JSON* and returns the modified value as *JSON*. Validators can also return *nil* if the validation does not pass - this is not taken into account in the following sync.
+
+`func getGroupers() -> [NSPredicate]` - Groupers are a list of predicates that define a subgroup of the managed objects stored in the database that the sync is run against. Instances outside of the subgroup are ignored and left untouched.
+
+### Serializer mapping attributes
+
+`CDMAttributeString` - Translates the data found in json to String
+
+`CDMAttributeNumber` - Translates the data found in json to NSNumber
+
+`CDMAttributeDouble` - Translates the data found in json to Double
+
+`CDMAttributeISODate` - Translates the data found in json to NSDate using ISO format - _yyyy-MM-dd'T'HH:mm:ssZZZZ_
+
+`CDMAttributeToMany` - Translates the data found in json to NSSet of NSManagedObject
+
+`CDMAttributeToOne` - Translates the data found in json to NSManagedObject
+
+You need to define a callback that returns a serializer for serializing and matching the managed objects when initializing attributes that return managed objects.
+
+### Serializer examples
+
+```swift
+// Create serializers for `Department` and `Employee` - both NSManagedObject subclasses
+class DepartmentSerializer<T:Department>: CDMSerializer<T> {
+    override init() {
+        super.init()
+
+        self.identifiers = ["departmentID"]
+        self.mapping = [
+            "departmentID": CDMAttributeNumber(["id"]),
+            "name": CDMAttributeString(["name"]),
+        ]
+    }
+}
+
+class EmployeeSerializer<T:Employee>: CDMSerializer<T> {
+    override init() {
+        super.init()
+
+        self.identifiers = ["employeeID"]
+        self.mapping = [
+            "employeeID": CDMAttributeNumber(["id"]),
+            "fullName": CDMAttributeString(["user", name"]),
+            "department": CDMAttributeToOne(["department"], serializerCallback: {departmentJSON in 
+                let departmentSerializer = DepartmentSerializer()
+                // Don't update nor delete the objects in child serializer
+                // Just match the department
+                departmentSerializer.updateExisting = false
+                departmentSerializer.deleteMissing = false
+
+                return departmentSerializer
+            }),
+        ]
+    }
+}
+```
 
 ## Syncing JSON data
 
@@ -159,10 +234,6 @@ backgroundCtx.performBlock { () -> Void in
 ## Author
 
 Taavi Teska ([Thorgate](http://thorgate.eu/))
-
-## Known bugs
-
-- Aggregate methods don't work with in-memory persistent stores (NSInMemoryStoreType). Avoid using CoreDataManager.setupInMemoryStoreCoordinator() when using aggregation helpers
 
 ## Dependencies
 
