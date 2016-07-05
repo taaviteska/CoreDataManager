@@ -212,7 +212,7 @@ class EmployeeSerializer<T:Employee>: CDMSerializer<T> {
         self.identifiers = ["employeeID"]
         self.mapping = [
             "employeeID": CDMAttributeNumber(["id"]),
-            "fullName": CDMAttributeString(["user", name"]),
+            "fullName": CDMAttributeString(["user", "name"]),
             "department": CDMAttributeToOne(["department"], serializerCallback: {departmentJSON in 
                 let departmentSerializer = DepartmentSerializer()
                 // Don't update nor delete the objects in child serializer
