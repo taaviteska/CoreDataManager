@@ -34,8 +34,8 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Minimum requirements
 
-- iOS 8.0
-- Xcode 7
+- iOS 9.0
+- Xcode 8
 
 ## Installation
 
@@ -49,10 +49,10 @@ To install CoreDataManager add a file named `Podfile` to the project's root fold
 
 ```ruby
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '8.0'
+platform :ios, '9.0'
 use_frameworks!
 
-pod 'CoreDataManager', '~> 0.6.1'
+pod 'CoreDataManager', '~> 0.7.0'
 ```
 
 Then, run the following command:
@@ -70,7 +70,7 @@ import CoreDataManager
 ```
 
 ```swift
-func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
     // Override point for customization after application launch.
 
     CoreDataManager.sharedInstance.setupWithModel("CoreDataManager")
@@ -112,14 +112,14 @@ let backgroundCtx = cdm.backgroundContext
 
 ```swift
 // Array of employees
-let employees = mainCtx.managerFor(Employee).array
+let employees = mainCtx.managerFor(Employee.self).array
 
 // Count of employees
-let employeeCount = mainCtx.managerFor(Employee).count
+let employeeCount = mainCtx.managerFor(Employee.self).count
 
 // First / last employee
-let oldestEmployee = mainCtx.managerFor(Employee).orderBy("age").first
-let youngestEmployee = mainCtx.managerFor(Employee).orderBy("age").last
+let oldestEmployee = mainCtx.managerFor(Employee.self).orderBy("age").first
+let youngestEmployee = mainCtx.managerFor(Employee.self).orderBy("age").last
 ```
 
 ### Filtering managed objects
@@ -127,7 +127,7 @@ let youngestEmployee = mainCtx.managerFor(Employee).orderBy("age").last
 Filter method accepts predicates and can be called with same arguments that a NSPredicate can be initialized
 
 ```swift
-let youngEmployeeManager = mainCtx.managerFor(Employee).filter("age < 40")
+let youngEmployeeManager = mainCtx.managerFor(Employee.self).filter("age < 40")
 
 // Young employees
 let youngEmployees = youngEmployeeManager.array
@@ -142,26 +142,26 @@ Applying minus sign (-) in front of the attribute will make the ordering desceni
 
 ```swift
 // Ascending array of employees ordered by age
-let employeesFromYoungest = mainCtx.managerFor(Employee).orderBy(["age", "name"]).array
+let employeesFromYoungest = mainCtx.managerFor(Employee.self).orderBy(["age", "name"]).array
 
 // Descending array of employees ordered by age
-let employeesFromOldest = mainCtx.managerFor(Employee).orderBy(["-age", "name"]).array
+let employeesFromOldest = mainCtx.managerFor(Employee.self).orderBy(["-age", "name"]).array
 ```
 
 ### Aggregating managed objects
 
 ```swift
 // Age of the youngest employee
-let ageOfYoungestEmployee = mainCtx.managerFor(Employee).min("age")
+let ageOfYoungestEmployee = mainCtx.managerFor(Employee.self).min("age")
 
 // Age of the oldest employee
-let ageOfOldestEmployee = mainCtx.managerFor(Employee).max("age")
+let ageOfOldestEmployee = mainCtx.managerFor(Employee.self).max("age")
 
 // Total age of the employees
-let totalAgeOfEmployees = mainCtx.managerFor(Employee).sum("age")
+let totalAgeOfEmployees = mainCtx.managerFor(Employee.self).sum("age")
 
 // Average age of the employees
-let avgAgeOfEmployees = mainCtx.managerFor(Employee).aggregate("average", forKeyPath: "age")
+let avgAgeOfEmployees = mainCtx.managerFor(Employee.self).aggregate("average", forKeyPath: "age")
 ```
 
 ### Deleting managed objects
@@ -169,7 +169,7 @@ let avgAgeOfEmployees = mainCtx.managerFor(Employee).aggregate("average", forKey
 ```swift
 // Delete employees older than 100
 backgroundCtx.performBlock { () -> Void in
-    backgroundCtx.managerFor(Employee).filter("age > 100").delete()
+    backgroundCtx.managerFor(Employee.self).filter("age > 100").delete()
     backgroundCtx.save()
 }
 ```

@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "CoreDataManager"
-  s.version          = "0.6.1"
+  s.version          = "0.7.0"
   s.summary          = "Easier way to set up Core Data and sync JSON data"
 
 # This description is used to generate tags and improve search results.
@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   s.source           = { :git => "https://github.com/taaviteska/CoreDataManager.git", :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/taaviteska'
 
-  s.platform     = :ios, '8.0'
+  s.platform     = :ios, '9.0'
   s.requires_arc = true
 
   s.source_files = 'Pod/Classes/**/*'
