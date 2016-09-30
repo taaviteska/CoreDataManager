@@ -1,5 +1,5 @@
 PODS:
-  - CoreDataManager (0.6.1):
+  - CoreDataManager (0.7.0):
     - SwiftyJSON (~> 3.1.0)
   - SwiftyJSON (3.1.0)
 
@@ -11,7 +11,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  CoreDataManager: 621c458fc9b15fedae85e6f1da07d4a3983f1d4a
+  CoreDataManager: ad8ed675d67e9d96f1f33e256e903f0ecfad8758
   SwiftyJSON: 29b9f2a64f118c07e691667c2ba1efe536acfe0b
 
 PODFILE CHECKSUM: 8633b12dcf0828f02d0172687257b4fe5a838020
