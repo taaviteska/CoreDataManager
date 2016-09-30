@@ -155,7 +155,7 @@ extension ManagedObjectManager {
         fetchRequest.propertiesToFetch = [expressionDescription]
         
         do {
-            let results = try self.context.fetch(fetchRequest)
+            let results = try self.context.fetch(fetchRequest) as [AnyObject]
             if results.count > 0 {
                 return results[0].value(forKey: expressionName)
             }
@@ -220,15 +220,15 @@ extension ManagedObjectManager {
     
     // MARK: Fetch requests
     
-    fileprivate func fetchRequest() -> NSFetchRequest<T> {
+    fileprivate func fetchRequest() -> NSFetchRequest<NSFetchRequestResult> {
         
         return self.fetchRequestWithPredicate(self.managerPredicate, andSortDescriptors: self.managerSortDescriptors, withFetchLimit: self.managerFetchLimit)
         
     }
     
-    fileprivate func fetchRequestWithPredicate(_ predicate: NSPredicate?, andSortDescriptors sortDescriptors: [NSSortDescriptor], withFetchLimit limit: Int?) -> NSFetchRequest<T> {
+    fileprivate func fetchRequestWithPredicate(_ predicate: NSPredicate?, andSortDescriptors sortDescriptors: [NSSortDescriptor], withFetchLimit limit: Int?) -> NSFetchRequest<NSFetchRequestResult> {
         
-        let fetchRequest = NSFetchRequest<T>(entityName: self.entityName())
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: self.entityName())
         
         fetchRequest.predicate = predicate
         fetchRequest.sortDescriptors = sortDescriptors

@@ -9,7 +9,7 @@ class SetupTestCase: XCTestCase {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
         
-        try! self.fileManager.createDirectory(atPath: self.documentsURLForTesting(true).path, withIntermediateDirectories: true, attributes: nil)
+        try! self.fileManager.createDirectory(atPath: self.documentsURLForTesting(forTesting: true).path, withIntermediateDirectories: true, attributes: nil)
     }
     
     override func tearDown() {
@@ -17,8 +17,8 @@ class SetupTestCase: XCTestCase {
         super.tearDown()
         
         // Clear documents directory
-        let documentsURL = self.documentsURLForTesting(false)
-        let fileNames = try! self.fileManager.contentsOfDirectoryAtPath(documentsURL.path!)
+        let documentsURL = self.documentsURLForTesting(forTesting: false)
+        let fileNames = try! self.fileManager.contentsOfDirectory(atPath: documentsURL.path)
         
         // For each file in the directory, create full path and delete the file
         for fileName in fileNames {
@@ -28,8 +28,8 @@ class SetupTestCase: XCTestCase {
         }
     }
     
-    func documentsURLForTesting(forTesting: Bool) -> NSURL {
-        let documentDirs = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
+    func documentsURLForTesting(forTesting: Bool) -> URL {
+        let documentDirs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         let documentsURL = documentDirs[documentDirs.count-1] 
         
         if forTesting {
@@ -64,12 +64,12 @@ class SetupTestCase: XCTestCase {
         }
         
         if let databaseURL = cdm.databaseURL {
-            let testdatabaseURLString = self.documentsURLForTesting(false).appendingPathComponent("CoreDataManager.sqlite").absoluteString
+            let testdatabaseURLString = self.documentsURLForTesting(forTesting: false).appendingPathComponent("CoreDataManager.sqlite").absoluteString
             let databaseURLString = databaseURL.absoluteString
             
             XCTAssertEqual(databaseURLString, testdatabaseURLString, "CoreDataManager database not created in the correct place")
             
-            self.fileManager.fileExistsAtPath(databaseURL.path!)
+            self.fileManager.fileExists(atPath: databaseURL.path)
         } else {
             XCTFail("CoreDataManager database URL is not set")
         }
@@ -86,12 +86,12 @@ class SetupTestCase: XCTestCase {
         }
         
         if let databaseURL = cdm.databaseURL {
-            let testdatabaseURLString = self.documentsURLForTesting(false).appendingPathComponent("TestDatabase.sqlite").absoluteString
+            let testdatabaseURLString = self.documentsURLForTesting(forTesting: false).appendingPathComponent("TestDatabase.sqlite").absoluteString
             let databaseURLString = databaseURL.absoluteString
             
             XCTAssertEqual(databaseURLString, testdatabaseURLString, "CoreDataManager database not created in the correct place")
             
-            self.fileManager.fileExistsAtPath(databaseURL.path!)
+            self.fileManager.fileExists(atPath: databaseURL.path)
         } else {
             XCTFail("CoreDataManager database URL is not set")
         }
@@ -99,7 +99,7 @@ class SetupTestCase: XCTestCase {
     
     func testStorageWithModelAndFileURL() {
         let cdm = CoreDataManager()
-        let testDatabaseURL = self.documentsURLForTesting(true).appendingPathComponent("TestDatabase.sqlite")
+        let testDatabaseURL = self.documentsURLForTesting(forTesting: true).appendingPathComponent("TestDatabase.sqlite")
         
         cdm.setupWithModel("CoreDataManager", andFileURL: testDatabaseURL)
         

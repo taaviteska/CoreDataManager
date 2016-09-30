@@ -22,12 +22,12 @@ class ContextTestCase: XCTestCase {
     func testMainContext() {
         let context = self.cdm.mainContext
         
-        XCTAssertEqual(context.concurrencyType, NSManagedObjectContextConcurrencyType.MainQueueConcurrencyType, "Main contexts is not main queue concurrency type")
+        XCTAssertEqual(context.concurrencyType, NSManagedObjectContextConcurrencyType.mainQueueConcurrencyType, "Main contexts is not main queue concurrency type")
     }
     
     func testBackgroundContext() {
         let context = self.cdm.backgroundContext
         
-        XCTAssertEqual(context.concurrencyType, NSManagedObjectContextConcurrencyType.PrivateQueueConcurrencyType, "Background contexts is not private queue concurrency type")
+        XCTAssertEqual(context.concurrencyType, NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType, "Background contexts is not private queue concurrency type")
     }
 }

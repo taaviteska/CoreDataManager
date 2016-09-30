@@ -14,15 +14,15 @@ class ManagedObjectManagerTestCase: XCTestCase {
         self.cdm = CoreDataManager()
         self.cdm.setupInMemoryWithModel("CoreDataManager")
         
-        self.cdm.mainContext.performBlockAndWait { () -> Void in
-            let batch = NSEntityDescription.insertNewObjectForEntityForName("Batch", inManagedObjectContext: self.cdm.mainContext) as! Batch
+        self.cdm.mainContext.performAndWait { () -> Void in
+            let batch = NSEntityDescription.insertNewObject(forEntityName: "Batch", into: self.cdm.mainContext) as! Batch
             batch.id = 100
             batch.name = "Batch 100"
             
             for i in 0...4 {
-                let click = NSEntityDescription.insertNewObjectForEntityForName("Click", inManagedObjectContext: self.cdm.mainContext) as! Click
-                click.clickID = i
-                click.timeStamp = NSDate()
+                let click = NSEntityDescription.insertNewObject(forEntityName: "Click", into: self.cdm.mainContext) as! Click
+                click.clickID = NSNumber(integerLiteral: i)
+                click.timeStamp = NSDate() as Date
                 click.batch = batch
             }
             
@@ -36,21 +36,21 @@ class ManagedObjectManagerTestCase: XCTestCase {
     }
     
     func testCreatingManager() {
-        let manager = self.cdm.mainContext.managerFor(Click)
+        let manager = self.cdm.mainContext.managerFor(Click.self)
         XCTAssertEqual(manager.entityName(), "Click", "Managed object manager's entity is wrong")
     }
     
     func testAggregation() {
-        var manager = self.cdm.mainContext.managerFor(Click)
+        var manager = self.cdm.mainContext.managerFor(Click.self)
         XCTAssertEqual(manager.count, 5, "Total clicks count is wrong")
         
-        manager = self.cdm.mainContext.managerFor(Click)
+        manager = self.cdm.mainContext.managerFor(Click.self)
         XCTAssertEqual(manager.filter(NSPredicate(format: "clickID < 0")).count, 0, "Total clicks count is wrong with filter")
         
-        manager = self.cdm.mainContext.managerFor(Click)
+        manager = self.cdm.mainContext.managerFor(Click.self)
         XCTAssertEqual(manager.filter(NSPredicate(format: "clickID < 2")).count, 2, "Clicks count is wrong")
         
-        manager = self.cdm.mainContext.managerFor(Click)
+        manager = self.cdm.mainContext.managerFor(Click.self)
         XCTAssertEqual(manager.filter(NSPredicate(format: "clickID < 10")).count, 5, "Total clicks count with filter wrong")
         
         // TODO: We use SQLite here because in-memory store has a bug
@@ -65,16 +65,16 @@ class ManagedObjectManagerTestCase: XCTestCase {
         try! fileManager.createDirectory(atPath: testingURL.path, withIntermediateDirectories: true, attributes: nil)
         SQLiteCDM.setupWithModel("CoreDataManager", andFileURL: databaseURL)
         
-        let SQLiteManager = SQLiteCDM.mainContext.managerFor(Click)
-        SQLiteCDM.mainContext.performBlockAndWait { () -> Void in
-            let batch = NSEntityDescription.insertNewObjectForEntityForName("Batch", inManagedObjectContext: SQLiteCDM.mainContext) as! Batch
+        let SQLiteManager = SQLiteCDM.mainContext.managerFor(Click.self)
+        SQLiteCDM.mainContext.performAndWait { () -> Void in
+            let batch = NSEntityDescription.insertNewObject(forEntityName: "Batch", into: SQLiteCDM.mainContext) as! Batch
             batch.id = 100
             batch.name = "Batch 100"
             
             for i in 0...4 {
-                let click = NSEntityDescription.insertNewObjectForEntityForName("Click", inManagedObjectContext: SQLiteCDM.mainContext) as! Click
-                click.clickID = i
-                click.timeStamp = NSDate()
+                let click = NSEntityDescription.insertNewObject(forEntityName: "Click", into: SQLiteCDM.mainContext) as! Click
+                click.clickID = NSNumber(integerLiteral: i)
+                click.timeStamp = Date()
                 click.batch = batch
             }
             
@@ -102,44 +102,44 @@ class ManagedObjectManagerTestCase: XCTestCase {
     }
     
     func testFiltering() {
-        var manager = self.cdm.mainContext.managerFor(Click)
+        var manager = self.cdm.mainContext.managerFor(Click.self)
         XCTAssertEqual(manager.array.count, 5, "Total clicks count from array is wrong with filter")
         
-        manager = self.cdm.mainContext.managerFor(Click)
+        manager = self.cdm.mainContext.managerFor(Click.self)
         XCTAssertEqual(manager.filter(NSPredicate(format: "clickID < 0")).array.count, 0, "Total clicks count from array is wrong")
         
-        manager = self.cdm.mainContext.managerFor(Click)
+        manager = self.cdm.mainContext.managerFor(Click.self)
         XCTAssertEqual(manager.filter(NSPredicate(format: "clickID < 2")).array.count, 2, "Clicks count from array is wrong")
         
-        manager = self.cdm.mainContext.managerFor(Click)
+        manager = self.cdm.mainContext.managerFor(Click.self)
         XCTAssertEqual(manager.filter(NSPredicate(format: "clickID < 10")).array.count, 5, "Total clicks from array count with filter wrong")
     }
     
     func testOrdering() {
-        var manager = self.cdm.mainContext.managerFor(Click)
+        var manager = self.cdm.mainContext.managerFor(Click.self)
         var clicks = manager.orderBy("clickID").array
         
         for i in 0...4 {
-            XCTAssertEqual(clicks[i].clickID, i, "Ascending ordering fails")
+            XCTAssertEqual(clicks[i].clickID.intValue, i, "Ascending ordering fails")
         }
         
-        manager = self.cdm.mainContext.managerFor(Click)
+        manager = self.cdm.mainContext.managerFor(Click.self)
         clicks = manager.orderBy("-clickID").array
         
         for i in 0...4 {
-            XCTAssertEqual(clicks[i].clickID, 4-i, "Descending ordering fails")
+            XCTAssertEqual(clicks[i].clickID.intValue, 4-i, "Descending ordering fails")
         }
     }
     
     func testFetching() {
-        var manager = self.cdm.mainContext.managerFor(Click)
+        var manager = self.cdm.mainContext.managerFor(Click.self)
         if let click = manager.orderBy("clickID").first {
             XCTAssertEqual(click.clickID, 0, "Fetching first click fails")
         } else {
             XCTFail("First click not found")
         }
         
-        manager = self.cdm.mainContext.managerFor(Click)
+        manager = self.cdm.mainContext.managerFor(Click.self)
         if let click = manager.orderBy("clickID").last {
             XCTAssertEqual(click.clickID, 4, "Fetching last click fails")
         } else {
@@ -148,12 +148,12 @@ class ManagedObjectManagerTestCase: XCTestCase {
     }
     
     func testDeleting() {
-        var manager = self.cdm.mainContext.managerFor(Click)
-        self.cdm.mainContext.performBlockAndWait { () -> Void in
-            manager.filter(format: "clickID > 0").delete()
+        var manager = self.cdm.mainContext.managerFor(Click.self)
+        self.cdm.mainContext.performAndWait { () -> Void in
+            _ = manager.filter(format: "clickID > 0").delete()
             try! self.cdm.mainContext.saveIfChanged()
             
-            manager = self.cdm.mainContext.managerFor(Click)
+            manager = self.cdm.mainContext.managerFor(Click.self)
             XCTAssertEqual(manager.count, 1, "Clicks count after saving is not correct")
         }
     }

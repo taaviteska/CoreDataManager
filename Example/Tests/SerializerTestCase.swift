@@ -56,7 +56,7 @@ class SerializerTestCase: XCTestCase {
         self.cdm.backgroundContext.syncData(jsonData, withSerializer: serializer) { (error) -> Void in
             XCTAssertNil(error)
             
-            let batches = self.cdm.mainContext.managerFor(Batch).orderBy("-id").array
+            let batches = self.cdm.mainContext.managerFor(Batch.self).orderBy("-id").array
             XCTAssertEqual(batches.count, 2, "Batches count after sync doesn't match")
             
             XCTAssertEqual(batches[0].id, 4, "Second batch's ID doesn't match")
@@ -108,7 +108,7 @@ class SerializerTestCase: XCTestCase {
         self.cdm.backgroundContext.syncData(jsonData, withSerializer: serializer) { (error) -> Void in
             XCTAssertNil(error)
             
-            let clicks = self.cdm.mainContext.managerFor(Click).filter(format: "batch.id = %d", 1).orderBy("clickID").array
+            let clicks = self.cdm.mainContext.managerFor(Click.self).filter(format: "batch.id = %d", 1).orderBy("clickID").array
             
             XCTAssertEqual(clicks.count, 2, "Clicks count after sync doesn't match")
             
@@ -128,17 +128,17 @@ class SerializerTestCase: XCTestCase {
         
         let expectation = self.expectation(description: "Inserting batch didn't complete")
         
-        XCTAssertEqual(self.cdm.mainContext.managerFor(Batch).count, 0, "Batches count before insert doesn't match")
+        XCTAssertEqual(self.cdm.mainContext.managerFor(Batch.self).count, 0, "Batches count before insert doesn't match")
         
         let json = JSON(["id": 10, "name": "Batch 10"])
         
         self.cdm.backgroundContext.insert(Batch.self, withJSON: json) { (error) -> Void in
             XCTAssertNil(error)
-            XCTAssertEqual(self.cdm.mainContext.managerFor(Batch).count, 1, "Batches count after first insert doesn't match")
+            XCTAssertEqual(self.cdm.mainContext.managerFor(Batch.self).count, 1, "Batches count after first insert doesn't match")
             
             self.cdm.backgroundContext.insert(Batch.self, withJSON: json, complete: { (error) -> Void in
                 XCTAssertNil(error)
-                XCTAssertEqual(self.cdm.mainContext.managerFor(Batch).count, 2, "Batches count after second insert doesn't match")
+                XCTAssertEqual(self.cdm.mainContext.managerFor(Batch.self).count, 2, "Batches count after second insert doesn't match")
                 
                 expectation.fulfill()
             })
@@ -153,17 +153,17 @@ class SerializerTestCase: XCTestCase {
         
         let expectation = self.expectation(description: "InsertOrUpdating batch didn't complete")
         
-        XCTAssertEqual(self.cdm.mainContext.managerFor(Batch).count, 0, "Batches count before insertOrUpdate doesn't match")
+        XCTAssertEqual(self.cdm.mainContext.managerFor(Batch.self).count, 0, "Batches count before insertOrUpdate doesn't match")
         
         let json = JSON(["id": 15, "name": "Batch 15"])
         
         self.cdm.backgroundContext.insertOrUpdate(Batch.self, withJSON: json, andIdentifiers: ["id"]) { (error) -> Void in
             XCTAssertNil(error)
-            XCTAssertEqual(self.cdm.mainContext.managerFor(Batch).count, 1, "Batches count after first insert or update doesn't match")
+            XCTAssertEqual(self.cdm.mainContext.managerFor(Batch.self).count, 1, "Batches count after first insert or update doesn't match")
             
             self.cdm.backgroundContext.insertOrUpdate(Batch.self, withJSON: json, andIdentifiers: ["id"]) { (error) -> Void in
                 XCTAssertNil(error)
-                XCTAssertEqual(self.cdm.mainContext.managerFor(Batch).count, 1, "Batches count after second insert or update doesn't match")
+                XCTAssertEqual(self.cdm.mainContext.managerFor(Batch.self).count, 1, "Batches count after second insert or update doesn't match")
                 
                 expectation.fulfill()
             }
