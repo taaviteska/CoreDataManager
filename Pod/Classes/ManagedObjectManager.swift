@@ -8,13 +8,13 @@
 
 import CoreData
 
-public class ManagedObjectManager<T:NSManagedObject> {
+open class ManagedObjectManager<T:NSManagedObject> {
     
-    private var context: NSManagedObjectContext!
+    fileprivate var context: NSManagedObjectContext!
     
-    private var managerPredicate: NSPredicate?
-    private var managerFetchLimit: Int?
-    private var managerSortDescriptors = [NSSortDescriptor]()
+    fileprivate var managerPredicate: NSPredicate?
+    fileprivate var managerFetchLimit: Int?
+    fileprivate var managerSortDescriptors = [NSSortDescriptor]()
     
     init(context: NSManagedObjectContext) {
         self.context = context
@@ -23,9 +23,9 @@ public class ManagedObjectManager<T:NSManagedObject> {
     
     // MARK: Entity
     
-    public func entityName() -> String {
+    open func entityName() -> String {
         
-        return NSStringFromClass(T).componentsSeparatedByString(".").last!
+        return NSStringFromClass(T).components(separatedBy: ".").last!
         
     }
     
@@ -35,7 +35,7 @@ public class ManagedObjectManager<T:NSManagedObject> {
 
 extension ManagedObjectManager {
     
-    public func filter(format predicateFormat: String, _ args: CVarArgType...) -> ManagedObjectManager<T> {
+    public func filter(format predicateFormat: String, _ args: CVarArg...) -> ManagedObjectManager<T> {
         
         return withVaList(args) {
             self.filter(format: predicateFormat, arguments: $0)
@@ -55,7 +55,7 @@ extension ManagedObjectManager {
         
     }
     
-    public func filter(predicate: NSPredicate) -> ManagedObjectManager<T> {
+    public func filter(_ predicate: NSPredicate) -> ManagedObjectManager<T> {
         
         if let currentPredicate = managerPredicate {
             self.managerPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [currentPredicate, predicate])
@@ -73,10 +73,10 @@ extension ManagedObjectManager {
 
 extension ManagedObjectManager {
     
-    public func orderBy(argument: String) -> ManagedObjectManager<T> {
+    public func orderBy(_ argument: String) -> ManagedObjectManager<T> {
         
         let isAscending = !argument.hasPrefix("-")
-        let key = isAscending ? argument : argument.substringFromIndex(argument.startIndex.advancedBy(1))
+        let key = isAscending ? argument : argument.substring(from: argument.characters.index(argument.startIndex, offsetBy: 1))
         
         self.managerSortDescriptors.append(NSSortDescriptor(key: key, ascending: isAscending))
         
@@ -84,7 +84,7 @@ extension ManagedObjectManager {
         
     }
     
-    public func orderBy(arguments: [String]) -> ManagedObjectManager<T> {
+    public func orderBy(_ arguments: [String]) -> ManagedObjectManager<T> {
         
         for arg in arguments {
             self.orderBy(arg)
@@ -100,37 +100,36 @@ extension ManagedObjectManager {
 
 extension ManagedObjectManager {
     
-    public var count: Int {
+    public var count: Int? {
         get {
             let fetchRequest = self.fetchRequest()
             
-            var error: NSError?
-            return self.context.countForFetchRequest(fetchRequest, error: &error)
+            return try? self.context.count(for: fetchRequest)
         }
     }
     
-    public func min(keyPath: String) -> AnyObject? {
+    public func min(_ keyPath: String) -> Any? {
         return self.aggregate("min", forKeyPath: keyPath)
     }
     
-    public func max(keyPath: String) -> AnyObject? {
+    public func max(_ keyPath: String) -> Any? {
         return self.aggregate("max", forKeyPath: keyPath)
     }
     
-    public func sum(keyPath: String) -> AnyObject? {
+    public func sum(_ keyPath: String) -> Any? {
         return self.aggregate("sum", forKeyPath: keyPath)
     }
     
-    public func aggregate(functionName: String, forKeyPath keyPath: String) -> AnyObject? {
-        let expression = NSExpression(forFunction: functionName.stringByAppendingString(":"), arguments: [NSExpression(forKeyPath: keyPath)])
+    public func aggregate(_ functionName: String, forKeyPath keyPath: String) -> Any? {
+        let expression = NSExpression(forFunction: functionName + ":", arguments: [NSExpression(forKeyPath: keyPath)])
         
         let expressionName = functionName + keyPath
         let expressionDescription = NSExpressionDescription()
         expressionDescription.name = expressionName
         expressionDescription.expression = expression
         
-        var entityDescription = NSEntityDescription.entityForName(self.entityName(), inManagedObjectContext: self.context)!
-        var keyPathArray = keyPath.componentsSeparatedByString(".")
+        var entityDescription = NSEntityDescription.entity(forEntityName: self.entityName(), in: self.context)!
+        var keyPathArray = keyPath.components(separatedBy: ".")
         let lastKey = keyPathArray.removeLast()
         
         for key in keyPathArray {
@@ -143,20 +142,22 @@ extension ManagedObjectManager {
         // Since we are changing expressionResultType we also need to check if there are any objects returned
         
         var fetchRequest = self.fetchRequest()
-        var error: NSError?
-        let objectCount = self.context.countForFetchRequest(fetchRequest, error: &error)
-        if objectCount == 0 || error != nil {
+        guard let objectCount = self.count else {
+            return nil
+        }
+        
+        if objectCount == 0 {
             return nil
         }
         
         fetchRequest = self.fetchRequest()
-        fetchRequest.resultType = NSFetchRequestResultType.DictionaryResultType
+        fetchRequest.resultType = NSFetchRequestResultType.dictionaryResultType
         fetchRequest.propertiesToFetch = [expressionDescription]
         
         do {
-            let results = try self.context.executeFetchRequest(fetchRequest)
+            let results = try self.context.fetch(fetchRequest)
             if results.count > 0 {
-                return results[0].valueForKey(expressionName)
+                return results[0].value(forKey: expressionName)
             }
         } catch {
             return nil
@@ -219,15 +220,15 @@ extension ManagedObjectManager {
     
     // MARK: Fetch requests
     
-    private func fetchRequest() -> NSFetchRequest {
+    fileprivate func fetchRequest() -> NSFetchRequest<T> {
         
         return self.fetchRequestWithPredicate(self.managerPredicate, andSortDescriptors: self.managerSortDescriptors, withFetchLimit: self.managerFetchLimit)
         
     }
     
-    private func fetchRequestWithPredicate(predicate: NSPredicate?, andSortDescriptors sortDescriptors: [NSSortDescriptor], withFetchLimit limit: Int?) -> NSFetchRequest {
+    fileprivate func fetchRequestWithPredicate(_ predicate: NSPredicate?, andSortDescriptors sortDescriptors: [NSSortDescriptor], withFetchLimit limit: Int?) -> NSFetchRequest<T> {
         
-        let fetchRequest = NSFetchRequest(entityName: self.entityName())
+        let fetchRequest = NSFetchRequest<T>(entityName: self.entityName())
         
         fetchRequest.predicate = predicate
         fetchRequest.sortDescriptors = sortDescriptors
@@ -242,22 +243,22 @@ extension ManagedObjectManager {
     
     // MARK: Results
     
-    private func results() -> [T] {
+    fileprivate func results() -> [T] {
         
         do {
-            return try self.context.executeFetchRequest(self.fetchRequest()) as! [T]
+            return try self.context.fetch(self.fetchRequest()) as! [T]
         } catch {
             return []
         }
         
     }
     
-    private func resultsWithPredicate(predicate: NSPredicate?, andSortDescriptors sortDescriptors: [NSSortDescriptor], withFetchLimit limit: Int?) -> [T] {
+    fileprivate func resultsWithPredicate(_ predicate: NSPredicate?, andSortDescriptors sortDescriptors: [NSSortDescriptor], withFetchLimit limit: Int?) -> [T] {
         
         let fetchRequest = self.fetchRequestWithPredicate(predicate, andSortDescriptors: sortDescriptors, withFetchLimit: limit)
         
         do {
-            return try self.context.executeFetchRequest(fetchRequest) as! [T]
+            return try self.context.fetch(fetchRequest) as! [T]
         } catch {
             return []
         }

@@ -10,33 +10,33 @@ import CoreData
 import SwiftyJSON
 
 
-public typealias CDMValidator = (data:JSON) -> JSON?
+public typealias CDMValidator = (_ data:JSON) -> JSON?
 
 
-public class CDMSerializer<T:NSManagedObject> {
+open class CDMSerializer<T:NSManagedObject> {
     
-    public var identifiers = [String]()
-    public var forceInsert = false
-    public var insertMissing = true
-    public var updateExisting = true
-    public var deleteMissing = true
-    public var mapping: [String: CDMAttribute]
+    open var identifiers = [String]()
+    open var forceInsert = false
+    open var insertMissing = true
+    open var updateExisting = true
+    open var deleteMissing = true
+    open var mapping: [String: CDMAttribute]
     
     public init() {
         self.mapping = [String: CDMAttribute]()
     }
     
-    public func getValidators() -> [CDMValidator] {
+    open func getValidators() -> [CDMValidator] {
         return [CDMValidator]()
     }
     
-    public func getGroupers() -> [NSPredicate] {
+    open func getGroupers() -> [NSPredicate] {
         return [NSPredicate]()
     }
     
-    func addAttributes(attributes: JSON, toObject object: NSManagedObject) {
+    func addAttributes(_ attributes: JSON, toObject object: NSManagedObject) {
         for (key, attribute) in self.mapping {
-            var newValue: AnyObject?
+            var newValue: Any?
             if attribute.needsContext {
                 if let context = object.managedObjectContext {
                     newValue = attribute.valueFrom(attributes, inContext: context)

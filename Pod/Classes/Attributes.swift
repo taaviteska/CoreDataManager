@@ -10,11 +10,11 @@ import CoreData
 import SwiftyJSON
 
 
-public class CDMAttribute {
+open class CDMAttribute {
     
-    private var key:[JSONSubscriptType]
+    fileprivate var key:[JSONSubscriptType]
     
-    public var needsContext = false
+    open var needsContext = false
     
     public init(_ key: [JSONSubscriptType]) {
         self.key = key
@@ -24,49 +24,49 @@ public class CDMAttribute {
         self.init(args)
     }
     
-    public func valueAsJSON(attributes: JSON? = nil) -> JSON? {
+    open func valueAsJSON(_ attributes: JSON? = nil) -> JSON? {
         return attributes?[key]
     }
     
-    public func valueFrom(attributes: JSON? = nil) -> AnyObject? {
+    open func valueFrom(_ attributes: JSON? = nil) -> Any? {
         return self.valueAsJSON(attributes)?.object
     }
     
-    public func valueFrom(attributes: JSON? = nil, inContext context: NSManagedObjectContext) -> AnyObject? {
+    open func valueFrom(_ attributes: JSON? = nil, inContext context: NSManagedObjectContext) -> Any? {
         fatalError("Attributes which don't need context need to use valueFrom(attributes: JSON?)")
     }
 }
 
 
-public class CDMAttributeString:CDMAttribute {
-    override public func valueFrom(attributes: JSON? = nil) -> AnyObject? {
+open class CDMAttributeString:CDMAttribute {
+    override open func valueFrom(_ attributes: JSON? = nil) -> Any? {
         return self.valueAsJSON(attributes)?.string
     }
 }
 
 
-public class CDMAttributeNumber:CDMAttribute {
-    override public func valueFrom(attributes: JSON? = nil) -> AnyObject? {
+open class CDMAttributeNumber:CDMAttribute {
+    override open func valueFrom(_ attributes: JSON? = nil) -> Any? {
         return self.valueAsJSON(attributes)?.number
     }
 }
 
 
-public class CDMAttributeDouble:CDMAttribute {
-    override public func valueFrom(attributes: JSON? = nil) -> AnyObject? {
+open class CDMAttributeDouble:CDMAttribute {
+    override open func valueFrom(_ attributes: JSON? = nil) -> Any? {
         return self.valueAsJSON(attributes)?.double
     }
 }
 
 
-public class CDMAttributeISODate:CDMAttributeString {
-    override public func valueFrom(attributes: JSON? = nil) -> AnyObject? {
-        if let dateString = super.valueFrom(attributes) as? String where dateString != "" {
-            let dateFormatter = NSDateFormatter()
+open class CDMAttributeISODate:CDMAttributeString {
+    override open func valueFrom(_ attributes: JSON? = nil) -> Any? {
+        if let dateString = super.valueFrom(attributes) as? String , dateString != "" {
+            let dateFormatter = DateFormatter()
             
-            dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZ"
-            return dateFormatter.dateFromString(dateString)
+            return dateFormatter.date(from: dateString)
         }
         
         return nil
@@ -74,22 +74,22 @@ public class CDMAttributeISODate:CDMAttributeString {
 }
 
 
-public class CDMAttributeToMany<T:NSManagedObject>:CDMAttribute {
+open class CDMAttributeToMany<T:NSManagedObject>:CDMAttribute {
     
-    private var serializerCallback: (JSON) -> (CDMSerializer<T>)
+    fileprivate var serializerCallback: (JSON) -> (CDMSerializer<T>)
     
-    public init(_ key: [JSONSubscriptType], serializerCallback: (JSON) -> (CDMSerializer<T>)) {
+    public init(_ key: [JSONSubscriptType], serializerCallback: @escaping (JSON) -> (CDMSerializer<T>)) {
         self.serializerCallback = serializerCallback
         super.init(key)
         
         self.needsContext = true
     }
     
-    override public func valueFrom(attributes: JSON? = nil) -> AnyObject? {
+    override open func valueFrom(_ attributes: JSON? = nil) -> Any? {
         fatalError("Managed object attributes need to have a context where to take the value")
     }
     
-    override public func valueFrom(attributes: JSON? = nil, inContext context: NSManagedObjectContext) -> AnyObject? {
+    override open func valueFrom(_ attributes: JSON? = nil, inContext context: NSManagedObjectContext) -> Any? {
         if let data = self.valueAsJSON(attributes) {
             let serializer = self.serializerCallback(attributes!)
             do {
@@ -104,15 +104,15 @@ public class CDMAttributeToMany<T:NSManagedObject>:CDMAttribute {
 }
 
 
-public class CDMAttributeToOne<T:NSManagedObject>:CDMAttributeToMany<T> {
+open class CDMAttributeToOne<T:NSManagedObject>:CDMAttributeToMany<T> {
     
-    public override init(_ key: [JSONSubscriptType], serializerCallback: (JSON) -> (CDMSerializer<T>)) {
+    public override init(_ key: [JSONSubscriptType], serializerCallback: @escaping (JSON) -> (CDMSerializer<T>)) {
         super.init(key, serializerCallback: serializerCallback)
     }
     
-    override public func valueFrom(attributes: JSON? = nil, inContext context: NSManagedObjectContext) -> AnyObject? {
+    override open func valueFrom(_ attributes: JSON? = nil, inContext context: NSManagedObjectContext) -> Any? {
         
-        if let objects = super.valueFrom(attributes, inContext: context) as? NSSet where objects.count == 1 {
+        if let objects = super.valueFrom(attributes, inContext: context) as? NSSet , objects.count == 1 {
             return objects.allObjects[0]
         }
         

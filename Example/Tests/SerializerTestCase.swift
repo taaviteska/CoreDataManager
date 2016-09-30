@@ -51,7 +51,7 @@ class SerializerTestCase: XCTestCase {
             ]
             ])
         
-        let expectation = self.expectationWithDescription("Syncing data didn't complete")
+        let expectation = self.expectation(description: "Syncing data didn't complete")
         
         self.cdm.backgroundContext.syncData(jsonData, withSerializer: serializer) { (error) -> Void in
             XCTAssertNil(error)
@@ -68,7 +68,7 @@ class SerializerTestCase: XCTestCase {
             expectation.fulfill()
         }
         
-        self.waitForExpectationsWithTimeout(1, handler: { (error) -> Void in
+        self.waitForExpectations(timeout: 1, handler: { (error) -> Void in
             print(error)
         })
     }
@@ -103,7 +103,7 @@ class SerializerTestCase: XCTestCase {
             ]
             ])
         
-        let expectation = self.expectationWithDescription("Syncing data didn't complete")
+        let expectation = self.expectation(description: "Syncing data didn't complete")
         
         self.cdm.backgroundContext.syncData(jsonData, withSerializer: serializer) { (error) -> Void in
             XCTAssertNil(error)
@@ -119,14 +119,14 @@ class SerializerTestCase: XCTestCase {
             expectation.fulfill()
         }
         
-        self.waitForExpectationsWithTimeout(1, handler: { (error) -> Void in
+        self.waitForExpectations(timeout: 1, handler: { (error) -> Void in
             print(error)
         })
     }
     
     func testInsert() {
         
-        let expectation = self.expectationWithDescription("Inserting batch didn't complete")
+        let expectation = self.expectation(description: "Inserting batch didn't complete")
         
         XCTAssertEqual(self.cdm.mainContext.managerFor(Batch).count, 0, "Batches count before insert doesn't match")
         
@@ -144,14 +144,14 @@ class SerializerTestCase: XCTestCase {
             })
         }
         
-        self.waitForExpectationsWithTimeout(1, handler: { (error) -> Void in
+        self.waitForExpectations(timeout: 1, handler: { (error) -> Void in
             print(error)
         })
     }
     
     func testInsertOrUpdate() {
         
-        let expectation = self.expectationWithDescription("InsertOrUpdating batch didn't complete")
+        let expectation = self.expectation(description: "InsertOrUpdating batch didn't complete")
         
         XCTAssertEqual(self.cdm.mainContext.managerFor(Batch).count, 0, "Batches count before insertOrUpdate doesn't match")
         
@@ -169,7 +169,7 @@ class SerializerTestCase: XCTestCase {
             }
         }
         
-        self.waitForExpectationsWithTimeout(1, handler: { (error) -> Void in
+        self.waitForExpectations(timeout: 1, handler: { (error) -> Void in
             print(error)
         })
     }

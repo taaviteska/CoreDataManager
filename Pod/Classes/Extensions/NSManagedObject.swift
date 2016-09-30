@@ -13,7 +13,7 @@ extension NSManagedObject {
     
     public func delete() {
         if let context = self.managedObjectContext {
-            context.deleteObject(self)
+            context.delete(self)
         }
     }
 }

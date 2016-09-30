@@ -12,7 +12,7 @@ import SwiftyJSON
 
 extension NSManagedObjectContext {
     
-    public func managerFor<T:NSManagedObject>(entity:T.Type) -> ManagedObjectManager<T> {
+    public func managerFor<T:NSManagedObject>(_ entity:T.Type) -> ManagedObjectManager<T> {
         return ManagedObjectManager(context: self)
     }
     
@@ -22,7 +22,7 @@ extension NSManagedObjectContext {
         }
     }
     
-    public func insert<T:NSManagedObject>(entity: T.Type, withJSON json: JSON, complete: ((NSError?) -> Void)? = nil) {
+    public func insert<T:NSManagedObject>(_ entity: T.Type, withJSON json: JSON, complete: ((NSError?) -> Void)? = nil) {
         let serializer = CDMSerializer<T>()
         serializer.forceInsert = true
         serializer.deleteMissing = false
@@ -35,7 +35,7 @@ extension NSManagedObjectContext {
         self.syncData(json, withSerializer: serializer, complete: complete)
     }
     
-    public func insertOrUpdate<T:NSManagedObject>(entity: T.Type, withJSON json: JSON, andIdentifiers identifiers: [String], complete: ((NSError?) -> Void)? = nil) {
+    public func insertOrUpdate<T:NSManagedObject>(_ entity: T.Type, withJSON json: JSON, andIdentifiers identifiers: [String], complete: ((NSError?) -> Void)? = nil) {
         let serializer = CDMSerializer<T>()
         serializer.deleteMissing = false
         serializer.identifiers = identifiers
@@ -48,23 +48,23 @@ extension NSManagedObjectContext {
         self.syncData(json, withSerializer: serializer, complete: complete)
     }
     
-    public func syncData<T:NSManagedObject>(json: JSON, withSerializer serializer: CDMSerializer<T>, complete: ((NSError?) -> Void)? = nil) {
-        self.performBlock({ () -> Void in
+    public func syncData<T:NSManagedObject>(_ json: JSON, withSerializer serializer: CDMSerializer<T>, complete: ((NSError?) -> Void)? = nil) {
+        self.perform({ () -> Void in
             do {
                 try self.syncDataArray(json, withSerializer: serializer, andSave: true)
                 
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                DispatchQueue.main.async(execute: { () -> Void in
                     complete?(nil)
                 })
             } catch let error as NSError {
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                DispatchQueue.main.async(execute: { () -> Void in
                     complete?(error)
                 })
             }
         })
     }
     
-    func syncDataArray<T:NSManagedObject>(json: JSON, withSerializer serializer: CDMSerializer<T>, andSave save: Bool) throws -> Array<T> {
+    func syncDataArray<T:NSManagedObject>(_ json: JSON, withSerializer serializer: CDMSerializer<T>, andSave save: Bool) throws -> Array<T> {
         
         if json == nil {
             return []
@@ -76,7 +76,7 @@ extension NSManagedObjectContext {
         for validator in serializer.getValidators() {
             var _dataArray = [JSON]()
             for (_, object) in validData {
-                if let validObject = validator(data: object) where validObject.type != .Null {
+                if let validObject = validator(object) , validObject.type != .null {
                     _dataArray.append(validObject)
                 }
             }
@@ -95,7 +95,7 @@ extension NSManagedObjectContext {
             for (_, attributes) in validData {
                 var currentKey = ""
                 for identifier in serializer.identifiers {
-                    if let key: AnyObject = serializer.mapping[identifier]!.valueFrom(attributes) {
+                    if let key: Any = serializer.mapping[identifier]!.valueFrom(attributes) {
                         currentKey += "\(key)-"
                     }
                 }
@@ -107,13 +107,13 @@ extension NSManagedObjectContext {
                 var objectKey = ""
                 
                 for identifier in serializer.identifiers {
-                    if let key = existingObject.valueForKeyPath(identifier) {
+                    if let key = existingObject.value(forKeyPath: identifier) {
                         objectKey += "\(key)-"
                     }
                 }
                 
                 if !currentKeys.contains(objectKey) {
-                    self.deleteObject(existingObject)
+                    self.delete(existingObject)
                 }
             }
         }
@@ -130,7 +130,7 @@ extension NSManagedObjectContext {
         for (_, attributes) in validData {
             if serializer.forceInsert {
                 // TODO: Move insert logic to one place
-                let object = NSEntityDescription.insertNewObjectForEntityForName(self.managerFor(T).entityName(), inManagedObjectContext: self) as! T
+                let object = NSEntityDescription.insertNewObject(forEntityName: self.managerFor(T).entityName(), into: self) as! T
                 serializer.addAttributes(attributes, toObject: object)
                 resultingObjects.append(object)
             } else {
@@ -144,12 +144,12 @@ extension NSManagedObjectContext {
                     }
                 }
                 
-                predicates.appendContentsOf(serializer.getGroupers())
+                predicates.append(contentsOf: serializer.getGroupers())
                 let existingObjects = self.managerFor(T).filter(NSCompoundPredicate(andPredicateWithSubpredicates: predicates)).array
                 
                 if existingObjects.isEmpty {
                     if serializer.insertMissing {
-                        let object = NSEntityDescription.insertNewObjectForEntityForName(self.managerFor(T).entityName(), inManagedObjectContext: self) as! T
+                        let object = NSEntityDescription.insertNewObject(forEntityName: self.managerFor(T).entityName(), into: self) as! T
                         serializer.addAttributes(attributes, toObject: object)
                         resultingObjects.append(object)
                     }

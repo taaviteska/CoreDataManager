@@ -9,14 +9,14 @@
 Pod::Spec.new do |s|
   s.name             = "CoreDataManager"
   s.version          = "0.6.1"
-  s.summary          = "Helper for Core Data management and syncing data from an JSON API"
+  s.summary          = "Easier way to set up Core Data and sync JSON data"
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
 #   * Try to keep it short, snappy and to the point.
 #   * Write the description between the DESC delimiters below.
 #   * Finally, don't worry about the indent, CocoaPods strips it!  
-  s.description      = "CoreDataManager makes it easy to operate with managed objects and map them with the objects fetched from any JSON API endpoint."
+  s.description      = "CoreDataManager is a layer for simpler Core Data setup and JSON data synchronization."
 
   s.homepage         = "https://github.com/taaviteska/CoreDataManager"
   # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
@@ -35,5 +35,5 @@ Pod::Spec.new do |s|
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  s.dependency 'SwiftyJSON', '~> 2.3.2'
+  s.dependency 'SwiftyJSON', '~> 3.1.0'
 end

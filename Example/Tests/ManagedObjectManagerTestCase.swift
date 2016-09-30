@@ -55,14 +55,14 @@ class ManagedObjectManagerTestCase: XCTestCase {
         
         // TODO: We use SQLite here because in-memory store has a bug
         // http://stackoverflow.com/questions/4387403/nscfnumber-count-unrecognized-selector
-        let fileManager = NSFileManager.defaultManager()
-        let documentDirs = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
+        let fileManager = FileManager.default
+        let documentDirs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         let documentsURL = documentDirs[documentDirs.count-1] 
-        let testingURL = documentsURL.URLByAppendingPathComponent("Testing")
-        let databaseURL = testingURL.URLByAppendingPathComponent("TestDatabase.sqlite")
+        let testingURL = documentsURL.appendingPathComponent("Testing")
+        let databaseURL = testingURL.appendingPathComponent("TestDatabase.sqlite")
         let SQLiteCDM = CoreDataManager()
         
-        try! fileManager.createDirectoryAtPath(testingURL.path!, withIntermediateDirectories: true, attributes: nil)
+        try! fileManager.createDirectory(atPath: testingURL.path, withIntermediateDirectories: true, attributes: nil)
         SQLiteCDM.setupWithModel("CoreDataManager", andFileURL: databaseURL)
         
         let SQLiteManager = SQLiteCDM.mainContext.managerFor(Click)
@@ -91,12 +91,12 @@ class ManagedObjectManagerTestCase: XCTestCase {
         
         
         // Clear documents directory
-        let fileNames = try! fileManager.contentsOfDirectoryAtPath(documentsURL.path!)
+        let fileNames = try! fileManager.contentsOfDirectory(atPath: documentsURL.path)
         
         // For each file in the directory, create full path and delete the file
         for fileName in fileNames {
             if fileName.hasPrefix("Test") {
-                try! fileManager.removeItemAtURL(documentsURL.URLByAppendingPathComponent(fileName))
+                try! fileManager.removeItem(at: documentsURL.appendingPathComponent(fileName))
             }
         }
     }

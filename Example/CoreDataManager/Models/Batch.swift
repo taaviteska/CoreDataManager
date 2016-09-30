@@ -9,10 +9,10 @@
 import Foundation
 import CoreData
 
-public class Batch: NSManagedObject {
+open class Batch: NSManagedObject {
 
-    @NSManaged public var name: String
-    @NSManaged public var id: NSNumber
-    @NSManaged public var clicks: NSSet
+    @NSManaged open var name: String
+    @NSManaged open var id: NSNumber
+    @NSManaged open var clicks: NSSet
 
 }
