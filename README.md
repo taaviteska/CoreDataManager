@@ -200,11 +200,17 @@ backgroundCtx.performBlock { () -> Void in
 
 `CDMAttributeString` - Translates the data found in json to String
 
+`CDMAttributeBool` - Translates the data found in json to Bool
+
+`CDMAttributeInt` - Translates the data found in json to Int
+
 `CDMAttributeNumber` - Translates the data found in json to NSNumber
 
 `CDMAttributeDouble` - Translates the data found in json to Double
 
-`CDMAttributeISODate` - Translates the data found in json to NSDate using ISO format - _yyyy-MM-dd'T'HH:mm:ssZZZZ_
+`CDMAttributeFloat` - Translates the data found in json to Float
+
+`CDMAttributeISODate` - Translates the data found in json to NSDate using ISO format - _yyyy-MM-dd'T'HH:mm:ssZZZZZ_ or _yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ_
 
 `CDMAttributeToMany` - Translates the data found in json to NSSet of NSManagedObject
 
