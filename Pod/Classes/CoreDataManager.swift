@@ -139,7 +139,11 @@ extension CoreDataManager {
         if let databaseURL = self.databaseURL {
             
             do {
-                try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: databaseURL, options: nil)
+                let options: [AnyHashable: Any] = [
+                    NSMigratePersistentStoresAutomaticallyOption : true,
+                    NSInferMappingModelAutomaticallyOption : true,
+                ]
+                try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: databaseURL, options: options)
             } catch {
                 fatalError("There was an error adding persistent SQLite store on url \(databaseURL)")
             }

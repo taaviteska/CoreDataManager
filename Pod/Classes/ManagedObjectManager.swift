@@ -25,7 +25,7 @@ open class ManagedObjectManager<T:NSManagedObject> {
     
     open func entityName() -> String {
         
-        return NSStringFromClass(T).components(separatedBy: ".").last!
+        return NSStringFromClass(T.self).components(separatedBy: ".").last!
         
     }
     
@@ -87,7 +87,7 @@ extension ManagedObjectManager {
     public func orderBy(_ arguments: [String]) -> ManagedObjectManager<T> {
         
         for arg in arguments {
-            self.orderBy(arg)
+            _ = self.orderBy(arg)
         }
         
         return self

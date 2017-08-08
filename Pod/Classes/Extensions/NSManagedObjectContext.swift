@@ -51,7 +51,7 @@ extension NSManagedObjectContext {
     public func syncData<T:NSManagedObject>(_ json: JSON, withSerializer serializer: CDMSerializer<T>, complete: ((NSError?) -> Void)? = nil) {
         self.perform({ () -> Void in
             do {
-                try self.syncDataArray(json, withSerializer: serializer, andSave: true)
+                _ = try self.syncDataArray(json, withSerializer: serializer, andSave: true)
                 
                 DispatchQueue.main.async(execute: { () -> Void in
                     complete?(nil)
@@ -66,7 +66,7 @@ extension NSManagedObjectContext {
     
     func syncDataArray<T:NSManagedObject>(_ json: JSON, withSerializer serializer: CDMSerializer<T>, andSave save: Bool) throws -> Array<T> {
         
-        if json == nil {
+        if json == JSON.null {
             return []
         }
         
@@ -102,7 +102,7 @@ extension NSManagedObjectContext {
                 currentKeys.insert(currentKey)
             }
             
-            let existingObjects = self.managerFor(T).filter(NSCompoundPredicate(andPredicateWithSubpredicates: serializer.getGroupers())).array
+            let existingObjects = self.managerFor(T.self).filter(NSCompoundPredicate(andPredicateWithSubpredicates: serializer.getGroupers())).array
             for existingObject in existingObjects {
                 var objectKey = ""
                 
@@ -130,7 +130,7 @@ extension NSManagedObjectContext {
         for (_, attributes) in validData {
             if serializer.forceInsert {
                 // TODO: Move insert logic to one place
-                let object = NSEntityDescription.insertNewObject(forEntityName: self.managerFor(T).entityName(), into: self) as! T
+                let object = NSEntityDescription.insertNewObject(forEntityName: self.managerFor(T.self).entityName(), into: self) as! T
                 serializer.addAttributes(attributes, toObject: object)
                 resultingObjects.append(object)
             } else {
@@ -145,11 +145,11 @@ extension NSManagedObjectContext {
                 }
                 
                 predicates.append(contentsOf: serializer.getGroupers())
-                let existingObjects = self.managerFor(T).filter(NSCompoundPredicate(andPredicateWithSubpredicates: predicates)).array
+                let existingObjects = self.managerFor(T.self).filter(NSCompoundPredicate(andPredicateWithSubpredicates: predicates)).array
                 
                 if existingObjects.isEmpty {
                     if serializer.insertMissing {
-                        let object = NSEntityDescription.insertNewObject(forEntityName: self.managerFor(T).entityName(), into: self) as! T
+                        let object = NSEntityDescription.insertNewObject(forEntityName: self.managerFor(T.self).entityName(), into: self) as! T
                         serializer.addAttributes(attributes, toObject: object)
                         resultingObjects.append(object)
                     }

@@ -89,11 +89,11 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let click = self.fetchedResultsController.object(at: indexPath)
-            let clickID = click.clickID as Int
+            let clickID = click.clickID
             
             let context = self.cdm.backgroundContext
             context.perform {
-                _ = context.managerFor(Click.self).filter(format: "clickID = %d", clickID).delete()
+                _ = context.managerFor(Click.self).filter(format: "clickID = %@", clickID).delete()
                 try! context.saveIfChanged()
             }
         }

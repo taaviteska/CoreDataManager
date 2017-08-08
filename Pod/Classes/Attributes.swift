@@ -45,6 +45,20 @@ open class CDMAttributeString:CDMAttribute {
 }
 
 
+open class CDMAttributeBool:CDMAttribute {
+    override open func valueFrom(_ attributes: JSON? = nil) -> Any? {
+        return self.valueAsJSON(attributes)?.bool
+    }
+}
+
+
+open class CDMAttributeInt:CDMAttribute {
+    override open func valueFrom(_ attributes: JSON? = nil) -> Any? {
+        return self.valueAsJSON(attributes)?.int
+    }
+}
+
+
 open class CDMAttributeNumber:CDMAttribute {
     override open func valueFrom(_ attributes: JSON? = nil) -> Any? {
         return self.valueAsJSON(attributes)?.number
@@ -59,16 +73,27 @@ open class CDMAttributeDouble:CDMAttribute {
 }
 
 
+open class CDMAttributeFloat:CDMAttribute {
+    override open func valueFrom(_ attributes: JSON? = nil) -> Any? {
+        return self.valueAsJSON(attributes)?.float
+    }
+}
+
+
 open class CDMAttributeISODate:CDMAttributeString {
     override open func valueFrom(_ attributes: JSON? = nil) -> Any? {
         if let dateString = super.valueFrom(attributes) as? String , dateString != "" {
-            let dateFormatter = DateFormatter()
-            
-            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZ"
-            return dateFormatter.date(from: dateString)
+            let formats = ["yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ", "yyyy-MM-dd'T'HH:mm:ssZZZZZ"]
+            for format in formats {
+                let dateFormatter = DateFormatter()
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+                dateFormatter.dateFormat = format
+                if let date = dateFormatter.date(from: dateString) {
+                    return date
+                }
+            }
+            return nil
         }
-        
         return nil
     }
 }
