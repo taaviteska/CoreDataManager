@@ -68,9 +68,7 @@ class SerializerTestCase: XCTestCase {
             expectation.fulfill()
         }
         
-        self.waitForExpectations(timeout: 1, handler: { (error) -> Void in
-            print(error)
-        })
+        self.waitForExpectations(timeout: 1)
     }
     
     func testNestedDataSync() {
@@ -119,9 +117,7 @@ class SerializerTestCase: XCTestCase {
             expectation.fulfill()
         }
         
-        self.waitForExpectations(timeout: 1, handler: { (error) -> Void in
-            print(error)
-        })
+        self.waitForExpectations(timeout: 1)
     }
     
     func testInsert() {
@@ -144,9 +140,7 @@ class SerializerTestCase: XCTestCase {
             })
         }
         
-        self.waitForExpectations(timeout: 1, handler: { (error) -> Void in
-            print(error)
-        })
+        self.waitForExpectations(timeout: 1)
     }
     
     func testInsertOrUpdate() {
@@ -169,9 +163,7 @@ class SerializerTestCase: XCTestCase {
             }
         }
         
-        self.waitForExpectations(timeout: 1, handler: { (error) -> Void in
-            print(error)
-        })
+        self.waitForExpectations(timeout: 1)
     }
 
 }
