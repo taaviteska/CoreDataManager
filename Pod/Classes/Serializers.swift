@@ -34,7 +34,7 @@ open class CDMSerializer<T:NSManagedObject> {
         return [NSPredicate]()
     }
     
-    func addAttributes(_ attributes: JSON, toObject object: NSManagedObject) {
+    open func addAttributes(_ attributes: JSON, toObject object: NSManagedObject) {
         for (key, attribute) in self.mapping {
             var newValue: Any?
             if attribute.needsContext {
