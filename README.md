@@ -52,7 +52,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '9.0'
 use_frameworks!
 
-pod 'CoreDataManager', '~> 0.8.0'
+pod 'CoreDataManager', '~> 0.8.1'
 ```
 
 Then, run the following command:

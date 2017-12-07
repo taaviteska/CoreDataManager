@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "CoreDataManager"
-  s.version          = "0.8.0"
+  s.version          = "0.8.1"
   s.summary          = "Easier way to set up Core Data and sync JSON data"
 
 # This description is used to generate tags and improve search results.
@@ -35,5 +35,5 @@ Pod::Spec.new do |s|
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  s.dependency 'SwiftyJSON', '~> 3.1.4'
+  s.dependency 'SwiftyJSON', '~> 4.0.0'
 end
