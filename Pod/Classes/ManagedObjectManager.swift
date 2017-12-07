@@ -76,7 +76,7 @@ extension ManagedObjectManager {
     public func orderBy(_ argument: String) -> ManagedObjectManager<T> {
         
         let isAscending = !argument.hasPrefix("-")
-        let key = isAscending ? argument : argument.substring(from: argument.characters.index(argument.startIndex, offsetBy: 1))
+        let key = isAscending ? argument : String(argument[argument.index(argument.startIndex, offsetBy: 1)...])
         
         self.managerSortDescriptors.append(NSSortDescriptor(key: key, ascending: isAscending))
         

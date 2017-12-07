@@ -100,7 +100,7 @@ extension CoreDataManager {
 extension CoreDataManager {
     
     // call back function by saveContext, support multi-thread
-    func contextDidSaveContext(_ notification: Notification) {
+    @objc func contextDidSaveContext(_ notification: Notification) {
         let sender = notification.object as! NSManagedObjectContext
         if sender === self.mainContext {
             self.backgroundContext.perform {

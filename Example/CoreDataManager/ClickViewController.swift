@@ -28,7 +28,7 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
         self.thisBatchID = NSNumber(integerLiteral: lastBatchID.intValue + 1)
     }
     
-    func insertNewClick(sender: AnyObject) {
+    @objc func insertNewClick(sender: AnyObject) {
         
         let context = self.cdm.backgroundContext
         context.perform {

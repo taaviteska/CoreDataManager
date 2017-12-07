@@ -48,7 +48,7 @@ extension NSManagedObjectContext {
         self.syncData(json, withSerializer: serializer, complete: complete)
     }
     
-    public func syncData<T:NSManagedObject>(_ json: JSON, withSerializer serializer: CDMSerializer<T>, complete: ((NSError?) -> Void)? = nil) {
+    public func syncData<T>(_ json: JSON, withSerializer serializer: CDMSerializer<T>, complete: ((NSError?) -> Void)? = nil) {
         self.perform({ () -> Void in
             do {
                 _ = try self.syncDataArray(json, withSerializer: serializer, andSave: true)
@@ -64,7 +64,7 @@ extension NSManagedObjectContext {
         })
     }
     
-    func syncDataArray<T:NSManagedObject>(_ json: JSON, withSerializer serializer: CDMSerializer<T>, andSave save: Bool) throws -> Array<T> {
+    func syncDataArray<T>(_ json: JSON, withSerializer serializer: CDMSerializer<T>, andSave save: Bool) throws -> Array<T> {
         
         if json == JSON.null {
             return []
