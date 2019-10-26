@@ -86,7 +86,7 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
         return true
     }
     
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let click = self.fetchedResultsController.object(at: indexPath)
             let clickID = click.clickID
@@ -148,6 +148,8 @@ class ClickViewController: UITableViewController, NSFetchedResultsControllerDele
         case .move:
             self.tableView.deleteRows(at: [indexPath!], with: .fade)
             self.tableView.insertRows(at: [newIndexPath!], with: .fade)
+        @unknown default:
+            fatalError("Unknown value of NSFetchedResultsChangeType")
         }
     }
     

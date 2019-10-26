@@ -11,7 +11,7 @@ import CoreData
 
 open class CoreDataManager:NSObject {
     
-    open static let sharedInstance = CoreDataManager()
+    public static let sharedInstance = CoreDataManager()
     
     fileprivate(set) open var modelName: String?
     fileprivate(set) open var databaseURL: URL?
