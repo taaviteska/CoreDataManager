@@ -35,7 +35,7 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 ## Minimum requirements
 
 - iOS 9.0
-- Xcode 9
+- Xcode 11.0
 
 ## Installation
 
@@ -52,7 +52,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '9.0'
 use_frameworks!
 
-pod 'CoreDataManager', '~> 0.8.2'
+pod 'CoreDataManager', '~> 0.9.0'
 ```
 
 Then, run the following command:
