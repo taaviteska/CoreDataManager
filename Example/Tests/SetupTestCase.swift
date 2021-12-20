@@ -101,7 +101,7 @@ class SetupTestCase: XCTestCase {
         let cdm = CoreDataManager()
         let testDatabaseURL = self.documentsURLForTesting(forTesting: true).appendingPathComponent("TestDatabase.sqlite")
         
-        cdm.setupWithModel("CoreDataManager", andFileURL: testDatabaseURL)
+        cdm.setupWithModel("CoreDataManager", andDatabaseURL: testDatabaseURL)
         
         if let modelName = cdm.modelName {
             XCTAssertEqual(modelName, "CoreDataManager", "CoreDataManager model name is incorrect")

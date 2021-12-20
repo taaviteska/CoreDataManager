@@ -9,31 +9,47 @@ class ManagedObjectManagerTestCase: XCTestCase {
     
     override func setUp() {
         super.setUp()
+        
+        try? FileManager.default.removeItem(at: databaseURL)
+        
         // Put setup code here. This method is called before the invocation of each test method in the class.
         
         self.cdm = CoreDataManager()
         self.cdm.setupInMemoryWithModel("CoreDataManager")
         
         self.cdm.mainContext.performAndWait { () -> Void in
-            let batch = NSEntityDescription.insertNewObject(forEntityName: "Batch", into: self.cdm.mainContext) as! Batch
-            batch.id = 100
-            batch.name = "Batch 100"
+            let batch = NSEntityDescription.insertNewObject(forEntityName: "Batch", into: self.cdm.mainContext) as? Batch
+            batch?.id = 100
+            batch?.name = "Batch 100"
             
             for i in 0...4 {
-                let click = NSEntityDescription.insertNewObject(forEntityName: "Click", into: self.cdm.mainContext) as! Click
-                click.clickID = NSNumber(integerLiteral: i)
-                click.timeStamp = NSDate() as Date
-                click.batch = batch
+                let click = NSEntityDescription.insertNewObject(forEntityName: "Click", into: self.cdm.mainContext) as? Click
+                click?.clickID = NSNumber(value: i)
+                click?.timeStamp = NSDate() as Date
+                if let batch = batch {
+                    click?.batch = batch
+                }
             }
             
-            try! self.cdm.mainContext.saveIfChanged()
+            try? self.cdm.mainContext.saveIfChanged()
         }
     }
     
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
+        try? FileManager.default.removeItem(at: databaseURL)
         super.tearDown()
     }
+    
+    private lazy var databaseURL: URL = {
+        let fileManager = FileManager.default
+        let documentDirs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let documentsURL = documentDirs[documentDirs.count-1]
+        let testingURL = documentsURL.appendingPathComponent("Testing")
+        let databaseURL = testingURL.appendingPathComponent("TestDatabase.sqlite")
+        try? fileManager.createDirectory(atPath: testingURL.path, withIntermediateDirectories: true, attributes: nil)
+        return databaseURL
+    }()
     
     func testCreatingManager() {
         let manager = self.cdm.mainContext.managerFor(Click.self)
@@ -55,49 +71,35 @@ class ManagedObjectManagerTestCase: XCTestCase {
         
         // TODO: We use SQLite here because in-memory store has a bug
         // http://stackoverflow.com/questions/4387403/nscfnumber-count-unrecognized-selector
-        let fileManager = FileManager.default
-        let documentDirs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        let documentsURL = documentDirs[documentDirs.count-1] 
-        let testingURL = documentsURL.appendingPathComponent("Testing")
-        let databaseURL = testingURL.appendingPathComponent("TestDatabase.sqlite")
         let SQLiteCDM = CoreDataManager()
-        
-        try! fileManager.createDirectory(atPath: testingURL.path, withIntermediateDirectories: true, attributes: nil)
-        SQLiteCDM.setupWithModel("CoreDataManager", andFileURL: databaseURL)
-        
-        let SQLiteManager = SQLiteCDM.mainContext.managerFor(Click.self)
-        SQLiteCDM.mainContext.performAndWait { () -> Void in
-            let batch = NSEntityDescription.insertNewObject(forEntityName: "Batch", into: SQLiteCDM.mainContext) as! Batch
-            batch.id = 100
-            batch.name = "Batch 100"
+        SQLiteCDM.setupWithModel("CoreDataManager", andDatabaseURL: databaseURL)
+        let testContext = SQLiteCDM.mainContext
+        let SQLiteManager = SQLiteCDM.backgroundContext.managerFor(Click.self)
+        testContext.performAndWait { () -> Void in
+            let batch = NSEntityDescription.insertNewObject(forEntityName: "Batch", into: testContext) as? Batch
+            batch?.id = 100
+            batch?.name = "Batch 100"
             
             for i in 0...4 {
-                let click = NSEntityDescription.insertNewObject(forEntityName: "Click", into: SQLiteCDM.mainContext) as! Click
-                click.clickID = NSNumber(integerLiteral: i)
-                click.timeStamp = Date()
-                click.batch = batch
+                if let click = NSEntityDescription.insertNewObject(forEntityName: "Click", into: testContext) as? Click {
+                    click.clickID = NSNumber(value: i)
+                    click.timeStamp = Date()
+                    if let batch = batch {
+                        click.batch = batch
+                    }
+                }
             }
             
-            try! SQLiteCDM.mainContext.saveIfChanged()
+            try? testContext.saveIfChanged()
             
             XCTAssertEqual(SQLiteManager.min("clickID") as? Int, 0, "Aggregation MIN is wrong")
-            
+
             XCTAssertEqual(SQLiteManager.max("clickID") as? Int, 4, "Aggregation MAX is wrong")
-            
+
             XCTAssertEqual(SQLiteManager.sum("clickID") as? Int, 10, "Aggregation SUM is wrong")
             
-            XCTAssertEqual(SQLiteManager.aggregate("average", forKeyPath: "clickID") as? Int, 2, "Aggregation AVG is wrong")
-        }
-        
-        
-        // Clear documents directory
-        let fileNames = try! fileManager.contentsOfDirectory(atPath: documentsURL.path)
-        
-        // For each file in the directory, create full path and delete the file
-        for fileName in fileNames {
-            if fileName.hasPrefix("Test") {
-                try! fileManager.removeItem(at: documentsURL.appendingPathComponent(fileName))
-            }
+            XCTAssertEqual(SQLiteManager.average("clickID") as? Int, 2, "Aggregation AVG is wrong")
+            
         }
     }
     

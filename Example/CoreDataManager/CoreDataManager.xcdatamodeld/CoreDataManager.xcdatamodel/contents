@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="7701" systemVersion="14F27" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
-    <entity name="Batch" representedClassName="CoreDataManager_Example.Batch" syncable="YES">
-        <attribute name="id" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
-        <attribute name="name" attributeType="String" syncable="YES"/>
-        <relationship name="clicks" toMany="YES" deletionRule="Cascade" destinationEntity="Click" inverseName="batch" inverseEntity="Click" syncable="YES"/>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19206" systemVersion="20G224" minimumToolsVersion="Xcode 11.0" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Batch" representedClassName=".Batch" syncable="YES">
+        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="clicks" toMany="YES" deletionRule="Cascade" destinationEntity="Click" inverseName="batch" inverseEntity="Click"/>
     </entity>
-    <entity name="Click" representedClassName="CoreDataManager_Example.Click" syncable="YES">
-        <attribute name="clickID" attributeType="Integer 64" syncable="YES"/>
-        <attribute name="timeStamp" attributeType="Date" syncable="YES"/>
-        <relationship name="batch" maxCount="1" deletionRule="Nullify" destinationEntity="Batch" inverseName="clicks" inverseEntity="Batch" syncable="YES"/>
+    <entity name="Click" representedClassName=".Click" syncable="YES">
+        <attribute name="clickID" attributeType="Integer 64" usesScalarValueType="NO"/>
+        <attribute name="timeStamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="batch" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Batch" inverseName="clicks" inverseEntity="Batch"/>
+        <relationship name="point" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Point" inverseName="click" inverseEntity="Point"/>
+    </entity>
+    <entity name="Point" representedClassName=".Point" syncable="YES">
+        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO"/>
+        <attribute name="x" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO"/>
+        <attribute name="y" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO"/>
+        <relationship name="click" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Click" inverseName="point" inverseEntity="Click"/>
     </entity>
     <elements>
-        <element name="Click" positionX="-63" positionY="-18" width="128" height="90"/>
-        <element name="Batch" positionX="-54" positionY="9" width="128" height="90"/>
+        <element name="Batch" positionX="-174.5244140625" positionY="-131.9626007080078" width="128" height="74"/>
+        <element name="Click" positionX="-394.53173828125" positionY="-99.75918579101562" width="128" height="89"/>
+        <element name="Point" positionX="-183.0370483398438" positionY="-4.7864990234375" width="128" height="89"/>
     </elements>
 </model>

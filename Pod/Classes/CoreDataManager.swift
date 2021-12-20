@@ -8,164 +8,125 @@
 
 import CoreData
 
-
-open class CoreDataManager:NSObject {
-    
+open class CoreDataManager: NSObject {
     public static let sharedInstance = CoreDataManager()
     
-    fileprivate(set) open var modelName: String?
-    fileprivate(set) open var databaseURL: URL?
+    open fileprivate(set) var modelName: String?
+    open fileprivate(set) var databaseURL: URL?
     
-    fileprivate var storeCoordinator: NSPersistentStoreCoordinator?
+    public var persistentContainer: NSPersistentContainer {
+        guard let privatePersistentContainer = privatePersistentContainer else {
+            fatalError("CoreDataManager not set up. Use CoreDataManager.setupWithModel() or CoreDataManager.setupInMemoryWithModel()")
+        }
+        return privatePersistentContainer
+    }
+
+    public private(set) var privatePersistentContainer: NSPersistentContainer?
     
-    override public init(){
+    override public init() {
         super.init()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(CoreDataManager.contextDidSaveContext(_:)), name: NSNotification.Name.NSManagedObjectContextDidSave, object: nil)
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
     
-    
     // MARK: Lazy contexts
     
     open lazy var mainContext: NSManagedObjectContext = {
-        self.getManagedObjectContextWithType(NSManagedObjectContextConcurrencyType.mainQueueConcurrencyType)
-        }()
+        return getMainManagedObjectContext()
+    }()
     
     open lazy var backgroundContext: NSManagedObjectContext = {
-        self.getManagedObjectContextWithType(NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType)
-        }()
-    
+        return getBackgroundManagedObjectContext()
+    }()
     
     // MARK: Other lazy variables
     
     fileprivate lazy var applicationDocumentsDirectory: URL = {
         let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return urls[urls.count-1]
-        }()
-    
-    fileprivate lazy var managedObjectModel: NSManagedObjectModel = {
-        // The managed object model for the application. This property is not optional. It is a fatal error for the application not to be able to find and load its model.
-        if let modelName = self.modelName {
-            if let modelURL = Bundle.main.url(forResource: modelName, withExtension: "momd") {
-                if let model = NSManagedObjectModel(contentsOf: modelURL) {
-                    return model
-                }
-                
-                fatalError("Couldn't find the managed object model with name \(modelName)\nChecked url: \(modelURL)")
-            }
-            
-            fatalError("Couldn't find the managed object model with name \(modelName) in main bundle")
-        }
-        
-        fatalError("CoreDataManager not set up. Use CoreDataManager.setupWithModel() or CoreDataManager.setupInMemoryWithModel()")
-        }()
+        return urls[urls.count - 1]
+    }()
 }
-
 
 // MARK: - Setup
 
-extension CoreDataManager {
-    
-    public func setupWithModel(_ model: String) {
-        self.setupWithModel(model, andFileName: model + ".sqlite")
+public extension CoreDataManager {
+    func setupWithModel(_ modelName: String) {
+        setupWithModel(modelName, andFileName: modelName + ".sqlite")
     }
     
-    public func setupWithModel(_ model: String, andFileName fileName: String) {
-        let url = self.applicationDocumentsDirectory.appendingPathComponent(fileName)
-        self.setupWithModel(model, andFileURL: url)
+    func setupWithModel(_ modelName: String, andFileName fileName: String) {
+        let url = applicationDocumentsDirectory.appendingPathComponent(fileName)
+        setupWithModel(modelName, andDatabaseURL: url)
     }
     
-    public func setupWithModel(_ model: String, andFileURL url: URL) {
-        self.modelName = model
+    func setupWithModel(_ modelName: String, andDatabaseURL url: URL) {
+        self.modelName = modelName
         self.databaseURL = url
-        
-        self.setupPersistentStoreCoordinator()
+        setupPersistentContainer(modelName: modelName, databaseURL: url)
     }
     
-    public func setupInMemoryWithModel(_ model: String) {
-        self.modelName = model
+    func setupInMemoryWithModel(_ modelName: String) {
+        self.modelName = modelName
         
-        self.setupInMemoryStoreCoordinator()
-    }
-    
-}
-
-
-// MARK: - Context saving notifications
-
-extension CoreDataManager {
-    
-    // call back function by saveContext, support multi-thread
-    @objc func contextDidSaveContext(_ notification: Notification) {
-        let sender = notification.object as! NSManagedObjectContext
-        if sender === self.mainContext {
-            self.backgroundContext.perform {
-                self.backgroundContext.mergeChanges(fromContextDidSave: notification)
-            }
-        } else if sender === self.backgroundContext {
-            self.mainContext.perform {
-                self.mainContext.mergeChanges(fromContextDidSave: notification)
-            }
-        }
+        setupInMemoryPersistentContainer(modelName: modelName)
     }
 }
-
 
 // MARK: - Private
 
-extension CoreDataManager {
+private extension CoreDataManager {
+    func getMainManagedObjectContext() -> NSManagedObjectContext {
+        return persistentContainer.viewContext
+    }
+    
+    func getBackgroundManagedObjectContext() -> NSManagedObjectContext {
+        let backgroundContext = persistentContainer.newBackgroundContext()
+        backgroundContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        backgroundContext.automaticallyMergesChangesFromParent = true
+        return backgroundContext
+    }
 
-    fileprivate func getManagedObjectContextWithType(_ type: NSManagedObjectContextConcurrencyType) -> NSManagedObjectContext {
-        if let coordinator = self.storeCoordinator {
-            let managedObjectContext = NSManagedObjectContext(concurrencyType: type)
-            managedObjectContext.persistentStoreCoordinator = coordinator
-            return managedObjectContext
-        } else {
-            fatalError("Store coordinator not set up. Use one of the CoreDataManager.setup() methods")
-        }
-    }
-    
-    // The persistent store coordinator for the application. This implementation creates a coordinator, having added the store for the application to it.
-    fileprivate func setupPersistentStoreCoordinator() {
-        if self.storeCoordinator != nil {
-            return
-        }
-        
-        let coordinator: NSPersistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
-        if let databaseURL = self.databaseURL {
-            
-            do {
-                let options: [AnyHashable: Any] = [
-                    NSMigratePersistentStoresAutomaticallyOption : true,
-                    NSInferMappingModelAutomaticallyOption : true,
-                ]
-                try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: databaseURL, options: options)
-            } catch {
-                fatalError("There was an error adding persistent SQLite store on url \(databaseURL)")
+    func setupPersistentContainer(modelName: String, databaseURL: URL) {
+        let container = NSPersistentContainer(name: modelName)
+        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        container.viewContext.automaticallyMergesChangesFromParent = true
+        container.persistentStoreDescriptions = [getPersistentStoreDescription(databaseURL: databaseURL)]
+        container.loadPersistentStores(completionHandler: { _, error in
+            if let error = error as NSError? {
+                debugPrint("Unresolved error \(error), \(error.userInfo)")
             }
-            
-            self.storeCoordinator = coordinator
-        } else {
-            fatalError("CoreDataManager not set up. Use CoreDataManager.setupWithModel()")
-        }
-        
+        })
+        privatePersistentContainer = container
     }
     
-    fileprivate func setupInMemoryStoreCoordinator() {
-        if self.storeCoordinator != nil {
-            return
-        }
-        
-        let coordinator: NSPersistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
-        do {
-            try coordinator.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil, options: nil)
-            self.storeCoordinator = coordinator
-        } catch {
-            fatalError("There was an error adding in-memory store")
-        }
+    func setupInMemoryPersistentContainer(modelName: String) {
+        let container = NSPersistentContainer(name: modelName)
+        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        container.viewContext.automaticallyMergesChangesFromParent = true
+        container.persistentStoreDescriptions = [getMemoryStoreDescription()]
+        container.loadPersistentStores(completionHandler: { _, error in
+            if let error = error as NSError? {
+                debugPrint("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        privatePersistentContainer = container
+    }
+    
+    func getPersistentStoreDescription(databaseURL: URL) -> NSPersistentStoreDescription {
+        let storeDescription = NSPersistentStoreDescription(url: databaseURL)
+        storeDescription.type = NSSQLiteStoreType
+        storeDescription.shouldInferMappingModelAutomatically = true
+        storeDescription.shouldMigrateStoreAutomatically = true
+        return storeDescription
+    }
+    
+    func getMemoryStoreDescription() -> NSPersistentStoreDescription {
+        let storeDescription = NSPersistentStoreDescription()
+        storeDescription.type = NSInMemoryStoreType
+        storeDescription.shouldInferMappingModelAutomatically = true
+        storeDescription.shouldMigrateStoreAutomatically = true
+        return storeDescription
     }
 }
